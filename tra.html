@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAOVN - Tra Cứu Hồ Sơ Đặc Vụ</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Inter:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        hud: {
+                            bg: '#04070d',
+                            surface: 'rgba(10, 18, 32, 0.75)',
+                            border: 'rgba(0, 240, 255, 0.25)',
+                            cyan: '#00f0ff',
+                            amber: '#ffb700',
+                            green: '#00ff88',
+                            red: '#ff0055',
+                            muted: '#64748b',
+                            text: '#e2e8f0'
+                        }
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        mono: ['Share Tech Mono', 'monospace'],
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #04070d;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .hud-grid {
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+        }
+
+        .scanlines::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 20;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .hud-box {
+            position: relative;
+            background: rgba(8, 15, 28, 0.8);
+            border: 1px solid rgba(0, 240, 255, 0.25);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.05);
+        }
+
+        .hud-box::before, .hud-box::after,
+        .hud-corner-tr, .hud-corner-bl {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-color: #00f0ff;
+            pointer-events: none;
+        }
+
+        .hud-box::before { top: -1px; left: -1px; border-top: 2px solid #00f0ff; border-left: 2px solid #00f0ff; }
+        .hud-box::after { bottom: -1px; right: -1px; border-bottom: 2px solid #00f0ff; border-right: 2px solid #00f0ff; }
+        .hud-corner-tr { top: -1px; right: -1px; border-top: 2px solid #00f0ff; border-right: 2px solid #00f0ff; }
+        .hud-corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid #00f0ff; border-left: 2px solid #00f0ff; position: absolute; width: 10px; height: 10px; }
+
+        .glow-text-cyan { text-shadow: 0 0 12px rgba(0, 240, 255, 0.6); }
+        .glow-border-cyan { box-shadow: 0 0 15px rgba(0, 240, 255, 0.3); }
+    </style>
+</head>
+<body class="hud-grid scanlines flex flex-col justify-between">
+
+    <!-- Top Navigation -->
+    <header class="border-b border-hud-border/50 bg-[#04070d]/90 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-hud-bg border border-hud-cyan flex items-center justify-center text-hud-cyan glow-border-cyan relative">
+                    <i class="fa-solid fa-shield-halved text-lg"></i>
+                    <div class="hud-corner-tr"></div>
+                    <div class="hud-corner-bl"></div>
+                </div>
+                <div>
+                    <span class="font-orbitron font-bold text-lg tracking-[0.2em] text-white block leading-none">SAO<span class="text-hud-cyan glow-text-cyan">VN</span></span>
+                    <span class="text-[8px] font-mono text-hud-muted tracking-[0.2em] uppercase block mt-1">AGENT DATABASE PORTAL</span>
+                </div>
+            </a>
+
+            <a href="index.html" class="px-4 py-2 bg-hud-cyan/10 border border-hud-cyan/50 text-hud-cyan hover:bg-hud-cyan hover:text-black font-orbitron font-bold text-xs uppercase transition-all flex items-center gap-2">
+                <i class="fa-solid fa-arrow-left text-xs"></i>
+                <span>Trang Chủ</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 py-12 w-full flex-grow">
+        
+        <!-- Header & Agent Counter -->
+        <div class="text-center mb-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1 hud-box text-hud-amber font-mono text-xs mb-4">
+                <i class="fa-solid fa-database"></i>
+                <span>SYSTEM STATUS: ONLINE</span>
+            </div>
+            <h1 class="font-orbitron font-extrabold text-2xl sm:text-4xl text-white tracking-wide mb-3">
+                TRA CỨU HỒ SƠ ĐẶC VỤ <span class="text-hud-cyan glow-text-cyan">SAOVN</span>
+            </h1>
+            <p class="text-hud-muted text-xs font-mono uppercase tracking-widest mb-6">NHẬP SỐ ĐIỆN THOẠI ĐỂ TRUY XUẤT THÔNG TIN THÀNH VIÊN</p>
+
+            <!-- Total Member Counter Box -->
+            <div class="inline-block hud-box px-8 py-4 border-hud-cyan/60 glow-border-cyan">
+                <div class="hud-corner-tr"></div>
+                <div class="hud-corner-bl"></div>
+                <span class="font-mono text-xs text-hud-muted uppercase block">TỔNG SỐ THÀNH VIÊN ĐÃ ĐĂNG KÝ</span>
+                <span id="total-agents-count" class="font-orbitron font-bold text-3xl sm:text-4xl text-hud-cyan glow-text-cyan">
+                    <i class="fa-solid fa-spinner animate-spin text-xl"></i>
+                </span>
+            </div>
+        </div>
+
+        <!-- Search Input Box -->
+        <div class="hud-box p-6 sm:p-8 mb-8 border-hud-cyan/50">
+            <div class="hud-corner-tr"></div>
+            <div class="hud-corner-bl"></div>
+
+            <form onsubmit="searchAgent(event)" class="flex flex-col sm:flex-row gap-4">
+                <div class="relative flex-grow">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-hud-cyan">
+                        <i class="fa-solid fa-phone"></i>
+                    </div>
+                    <input type="tel" id="search-phone" required placeholder="Nhập số điện thoại (VD: 0901234567)..." pattern="[0-9]{9,11}"
+                        class="w-full bg-hud-bg/90 border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan focus:outline-none pl-11 pr-4 py-3.5 text-white text-sm font-mono transition-colors">
+                </div>
+                <button type="submit" id="search-btn" class="px-8 py-3.5 bg-hud-cyan hover:bg-hud-cyan/80 text-black font-orbitron font-bold text-xs tracking-[0.15em] uppercase transition-all flex items-center justify-center gap-2 shrink-0 glow-border-cyan">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span>TÌM KIẾM</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Result Status Message -->
+        <div id="status-message" class="hidden text-center p-4 font-mono text-sm mb-6 hud-box"></div>
+
+        <!-- Agent Detail Profile Card (Hidden by default) -->
+        <div id="agent-card" class="hidden hud-box p-6 sm:p-8 border-l-4 border-l-hud-cyan relative">
+            <div class="hud-corner-tr"></div>
+            <div class="hud-corner-bl"></div>
+
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-hud-border pb-6 mb-6 gap-4">
+                <div class="flex items-center space-x-4">
+                    <div class="w-16 h-16 bg-hud-bg border-2 border-hud-cyan text-hud-cyan text-2xl flex items-center justify-center shrink-0 glow-border-cyan">
+                        <i class="fa-solid fa-user-ninja"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <h2 id="card-name" class="font-orbitron font-bold text-2xl text-white">---</h2>
+                            <span class="px-2.5 py-0.5 bg-hud-cyan/20 border border-hud-cyan text-hud-cyan font-mono text-[10px] uppercase">ĐẶC VỤ XÁC NHẬN</span>
+                        </div>
+                        <p class="font-mono text-xs text-hud-muted mt-1">UID: <span id="card-uid" class="text-hud-amber">---</span></p>
+                    </div>
+                </div>
+
+                <div class="text-right font-mono text-xs text-hud-muted">
+                    <span>NGÀY GIA NHẬP</span>
+                    <p id="card-date" class="text-hud-cyan font-bold mt-0.5">---</p>
+                </div>
+            </div>
+
+            <!-- Detailed Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 font-mono text-xs">
+                <div class="space-y-4">
+                    <div class="bg-hud-bg/60 p-3.5 border border-hud-border/60">
+                        <span class="text-hud-muted block uppercase text-[10px] mb-1">// SỐ ĐIỆN THOẠI ĐĂNG NHẬP</span>
+                        <span id="card-phone" class="text-white text-sm font-semibold">---</span>
+                    </div>
+
+                    <div class="bg-hud-bg/60 p-3.5 border border-hud-border/60">
+                        <span class="text-hud-muted block uppercase text-[10px] mb-1">// EMAIL LIÊN HỆ TRỰC TIẾP</span>
+                        <span id="card-email" class="text-white text-sm font-semibold">---</span>
+                    </div>
+
+                    <div class="bg-hud-bg/60 p-3.5 border border-hud-border/60">
+                        <span class="text-hud-muted block uppercase text-[10px] mb-1">// LĨNH VỰC SỞ TRƯỜNG / THẾ MẠNH</span>
+                        <span id="card-specialty" class="text-hud-amber text-sm font-semibold uppercase">---</span>
+                    </div>
+                </div>
+
+                <div class="bg-hud-bg/60 p-4 border border-hud-border/60 flex flex-col justify-between">
+                    <div>
+                        <span class="text-hud-muted block uppercase text-[10px] mb-2">// LÝ DO & KHAO KHÁT GIA NHẬP SAOVN</span>
+                        <p id="card-ambition" class="text-hud-text text-xs leading-relaxed font-sans italic">"---"</p>
+                    </div>
+                    <div class="pt-4 mt-4 border-t border-hud-border/40 text-[10px] text-hud-cyan flex justify-between">
+                        <span>SECURITY CLEARANCE: VERIFIED</span>
+                        <i class="fa-solid fa-shield text-hud-cyan"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-hud-border/40 bg-[#020408] py-6 font-mono text-xs text-hud-muted text-center">
+        <p>© 2026 SAOVN INTELLIGENCE NETWORK. INTERNAL SEARCH ENGINE.</p>
+    </footer>
+
+    <!-- Firebase Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs, getCountFromServer } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2XuaN4re7UsCNXK_7vrBSYL-fQZtRRAc",
+            authDomain: "saovn-intelligence.firebaseapp.com",
+            projectId: "saovn-intelligence",
+            storageBucket: "saovn-intelligence.firebasestorage.app",
+            messagingSenderId: "973178704232",
+            appId: "1:973178704232:web:4e1195e1c317c71c9586dd"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Map specialty value to readable text
+        const specialtyMap = {
+            'tech': 'Công Nghệ / IT / Cyber Security',
+            'combat': 'Thể Lực / Võ Thuật / Trinh Sát',
+            'business': 'Kinh Doanh / Tài Chính / Quản Lý',
+            'media': 'Truyền Thông / Nghệ Thuật',
+            'other': 'Kỹ Năng Đặc Bắt Khác'
+        };
+
+        // 1. Fetch Total Agents Count on Page Load
+        async function fetchTotalAgentsCount() {
+            try {
+                const coll = collection(db, "saovn_agents");
+                const snapshot = await getCountFromServer(coll);
+                document.getElementById('total-agents-count').innerText = snapshot.data().count;
+            } catch (err) {
+                console.error("Lỗi khi đếm tổng số thành viên: ", err);
+                document.getElementById('total-agents-count').innerText = "N/A";
+            }
+        }
+        fetchTotalAgentsCount();
+
+        // 2. Search Agent by Phone Number
+        window.searchAgent = async function(event) {
+            event.preventDefault();
+            
+            const searchPhone = document.getElementById('search-phone').value.trim();
+            const searchBtn = document.getElementById('search-btn');
+            const statusMsg = document.getElementById('status-message');
+            const agentCard = document.getElementById('agent-card');
+
+            // Reset view
+            agentCard.classList.add('hidden');
+            statusMsg.classList.remove('hidden', 'border-hud-red', 'border-hud-cyan', 'text-hud-red', 'text-hud-cyan');
+            statusMsg.classList.add('border-hud-amber', 'text-hud-amber');
+            statusMsg.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Đang truy vấn cơ sở dữ liệu cho SĐT: <strong>${searchPhone}</strong>...`;
+
+            searchBtn.disabled = true;
+
+            try {
+                // Query Firestore collection saovn_agents where phone == searchPhone
+                const q = query(collection(db, "saovn_agents"), where("phone", "==", searchPhone));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    statusMsg.classList.remove('border-hud-amber', 'text-hud-amber');
+                    statusMsg.classList.add('border-hud-red', 'text-hud-red');
+                    statusMsg.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Không tìm thấy hồ sơ đặc vụ nào với Số điện thoại: <strong>${searchPhone}</strong>`;
+                } else {
+                    // Agent Found
+                    statusMsg.classList.add('hidden');
+                    
+                    querySnapshot.forEach((docSnap) => {
+                        const data = docSnap.data();
+                        
+                        document.getElementById('card-name').innerText = data.fullName || "N/A";
+                        document.getElementById('card-uid').innerText = data.uid || docSnap.id;
+                        document.getElementById('card-phone').innerText = data.phone || "N/A";
+                        document.getElementById('card-email').innerText = data.realContactEmail || "N/A";
+                        document.getElementById('card-specialty').innerText = specialtyMap[data.specialty] || data.specialty || "N/A";
+                        document.getElementById('card-ambition').innerText = data.ambition ? `"${data.ambition}"` : "Chưa cập nhật";
+                        
+                        // Format date
+                        if (data.createdAt) {
+                            const dateObj = new Date(data.createdAt);
+                            document.getElementById('card-date').innerText = dateObj.toLocaleDateString('vi-VN');
+                        } else {
+                            document.getElementById('card-date').innerText = "N/A";
+                        }
+                    });
+
+                    agentCard.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error("Lỗi tìm kiếm: ", err);
+                statusMsg.classList.remove('border-hud-amber', 'text-hud-amber');
+                statusMsg.classList.add('border-hud-red', 'text-hud-red');
+                statusMsg.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Lỗi kết nối Firestore: ${err.message}`;
+            } finally {
+                searchBtn.disabled = false;
+            }
+        };
+    </script>
+</body>
+</html>

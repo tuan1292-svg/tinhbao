@@ -617,7 +617,7 @@
                 // Step 2: Store agent profile in Firestore under UID and Collection
                 agentProfile.uid = user.uid;
                 await setDoc(doc(db, "saovn_agents", user.uid), agentProfile);
-                await addDoc(collection(db, "saovn_registrations"), agentProfile);
+                // await addDoc(collection(db, "saovn_registrations"), agentProfile);
 
                 document.getElementById('success-message').innerText = 
                     `Đăng ký thành công! Số điện thoại [${phone}] đã được liên kết với hệ thống SAOVN Auth. Mật khẩu đã được mã hóa an toàn.`;
@@ -633,7 +633,7 @@
                 } else {
                     // Fallback to saving in Firestore if Auth rules have restrictions
                     try {
-                        await addDoc(collection(db, "saovn_registrations"), agentProfile);
+                        //await addDoc(collection(db, "saovn_registrations"), agentProfile);
                         document.getElementById('success-modal').classList.remove('hidden');
                         document.getElementById('recruitment-form').reset();
                     } catch (fsErr) {
