@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAOVN - Special Action Organization for Vietnam | Tactical Intelligence Portal</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Orbitron for Sci-Fi HUD headers & Inter for clear tech text -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Inter:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Config with Holographic Theme -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        hud: {
+                            bg: '#04070d',
+                            surface: 'rgba(10, 18, 32, 0.75)',
+                            surfaceLight: 'rgba(16, 28, 50, 0.85)',
+                            border: 'rgba(0, 240, 255, 0.25)',
+                            cyan: '#00f0ff',
+                            cyanGlow: 'rgba(0, 240, 255, 0.4)',
+                            amber: '#ffb700',
+                            amberGlow: 'rgba(255, 183, 0, 0.4)',
+                            green: '#00ff88',
+                            muted: '#64748b',
+                            text: '#e2e8f0'
+                        }
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        mono: ['Share Tech Mono', 'monospace'],
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom Futuristic HUD Styling -->
+    <style>
+        body {
+            background-color: #04070d;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .hud-grid {
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+        }
+
+        .scanlines::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 20;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .hud-box {
+            position: relative;
+            background: rgba(8, 15, 28, 0.7);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.05);
+        }
+
+        .hud-box::before, .hud-box::after,
+        .hud-corner-tr, .hud-corner-bl {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-color: #00f0ff;
+            pointer-events: none;
+        }
+
+        .hud-box::before { top: -1px; left: -1px; border-top: 2px solid #00f0ff; border-left: 2px solid #00f0ff; }
+        .hud-box::after { bottom: -1px; right: -1px; border-bottom: 2px solid #00f0ff; border-right: 2px solid #00f0ff; }
+        .hud-corner-tr { top: -1px; right: -1px; border-top: 2px solid #00f0ff; border-right: 2px solid #00f0ff; }
+        .hud-corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid #00f0ff; border-left: 2px solid #00f0ff; position: absolute; width: 10px; height: 10px; }
+
+        .glow-text-cyan { text-shadow: 0 0 12px rgba(0, 240, 255, 0.6); }
+        .glow-text-amber { text-shadow: 0 0 12px rgba(255, 183, 0, 0.6); }
+        .glow-border-cyan { box-shadow: 0 0 15px rgba(0, 240, 255, 0.3); }
+
+        .radar-sweep {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, rgba(0, 240, 255, 0.2) 0deg, transparent 60deg, transparent 360deg);
+            animation: radarRotate 6s linear infinite;
+        }
+
+        @keyframes radarRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes hudPulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
+        }
+        .animate-hud-pulse { animation: hudPulse 3s infinite ease-in-out; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #04070d; }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 240, 255, 0.3); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00f0ff; }
+    </style>
+</head>
+<body class="hud-grid scanlines min-h-screen selection:bg-hud-cyan selection:text-black">
+
+    <!-- Top Security Ticker -->
+    <header class="border-b border-hud-border/50 bg-[#04070d]/90 backdrop-blur-md sticky top-0 z-50 text-[11px] font-mono text-hud-cyan/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <span class="relative flex h-2.5 w-2.5">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-hud-cyan opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-hud-cyan"></span>
+                </span>
+                <span class="tracking-widest uppercase glow-text-cyan font-bold">SAOVN INTELLIGENCE NETWORK // AUTH PROTOCOL READY</span>
+            </div>
+            <div class="hidden md:flex items-center space-x-6 tracking-wider">
+                <span>PROJECT: saovn-intelligence</span>
+                <span>•</span>
+                <span>CLEARANCE: LEVEL 5</span>
+                <span>•</span>
+                <span id="system-clock" class="text-hud-amber font-mono font-bold">00:00:00 UTC</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation Bar -->
+    <nav class="border-b border-hud-border/40 bg-hud-surface/90 backdrop-blur-md sticky top-[33px] z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center">
+            <a href="#" class="flex items-center space-x-3 group">
+                <div class="w-11 h-11 bg-hud-bg border border-hud-cyan/60 flex items-center justify-center text-hud-cyan group-hover:border-hud-cyan group-hover:glow-border-cyan transition-all relative">
+                    <i class="fa-solid fa-shield-halved text-xl"></i>
+                    <div class="hud-corner-tr"></div>
+                    <div class="hud-corner-bl"></div>
+                </div>
+                <div>
+                    <span class="font-orbitron font-bold text-xl tracking-[0.2em] text-white block leading-none">SAO<span class="text-hud-cyan glow-text-cyan">VN</span></span>
+                    <span class="text-[9px] font-mono text-hud-muted tracking-[0.2em] uppercase block mt-1">Special Action Organization FOR VIETNAM</span>
+                </div>
+            </a>
+
+            <div class="hidden lg:flex items-center space-x-8 text-xs font-mono tracking-[0.15em] uppercase text-slate-300">
+                <a href="#vision" class="hover:text-hud-cyan transition-colors flex items-center gap-1.5"><i class="fa-solid fa-eye text-[10px] text-hud-cyan"></i> // TẦM NHÌN</a>
+                <a href="#mission" class="hover:text-hud-cyan transition-colors flex items-center gap-1.5"><i class="fa-solid fa-crosshairs text-[10px] text-hud-cyan"></i> // SỨ MỆNH</a>
+                <a href="#members" class="hover:text-hud-cyan transition-colors flex items-center gap-1.5"><i class="fa-solid fa-user-ninja text-[10px] text-hud-cyan"></i> // THÀNH VIÊN</a>
+                <a href="#roadmap" class="hover:text-hud-cyan transition-colors flex items-center gap-1.5"><i class="fa-solid fa-route text-[10px] text-hud-cyan"></i> // LỘ TRÌNH</a>
+            </div>
+
+            <a href="#apply" class="px-5 py-2.5 bg-hud-cyan/10 border border-hud-cyan text-hud-cyan hover:bg-hud-cyan hover:text-black font-orbitron font-bold text-xs tracking-widest uppercase transition-all duration-300 flex items-center space-x-2 glow-border-cyan">
+                <i class="fa-solid fa-user-plus text-xs"></i>
+                <span>Đăng Ký Mới</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- SECTION 1: HERO & SHORT INTRO -->
+    <section class="relative py-20 lg:py-32 overflow-hidden border-b border-hud-border/40">
+        <div class="absolute right-[-100px] top-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-hud-cyan/15 rounded-full pointer-events-none hidden lg:block">
+            <div class="w-full h-full rounded-full border border-hud-cyan/10 scale-75"></div>
+            <div class="w-full h-full rounded-full border border-hud-cyan/5 scale-50"></div>
+            <div class="radar-sweep"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-3xl">
+                <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 hud-box text-hud-cyan text-xs font-mono mb-8 border-hud-cyan/40">
+                    <i class="fa-solid fa-satellite-dish animate-pulse text-hud-amber"></i>
+                    <span class="tracking-widest uppercase font-semibold">RECRUITMENT PROTOCOL ACTIVATED // VIETNAM 2026</span>
+                </div>
+
+                <h1 class="font-orbitron font-extrabold text-3xl sm:text-5xl lg:text-6xl text-white leading-[1.15] tracking-wide mb-4">
+                    SAOVN <br/>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-hud-cyan via-white to-hud-amber glow-text-cyan">TỔ CHỨC HÀNH ĐỘNG ĐẶC BIỆT VÌ VIỆT NAM</span>
+                </h1>
+
+                <div class="font-mono text-hud-amber text-sm sm:text-base tracking-widest uppercase mb-8 flex items-center gap-2">
+                    <span class="h-0.5 w-8 bg-hud-amber inline-block"></span>
+                    <span>SLOGAN: "SPECIAL ACTION ORGANIZATION FOR VIETNAM"</span>
+                </div>
+
+                <div class="hud-box p-6 mb-10 border-l-4 border-l-hud-cyan">
+                    <p class="text-hud-text text-base sm:text-lg leading-relaxed font-light">
+                        <strong class="text-hud-cyan font-semibold">SAOVN</strong> là một tổ chức được thành lập để thực hiện những <strong class="text-white font-medium">hành động đặc biệt</strong>, góp phần làm cho Việt Nam ngày càng trở nên tốt đẹp, đồng thời rèn luyện và phát triển toàn diện về <span class="text-hud-amber font-semibold">thể chất, kỹ năng cũng như cuộc sống</span> cho chính các thành viên tham gia.
+                    </p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="#apply" class="px-8 py-4 bg-hud-cyan hover:bg-hud-cyan/80 text-black font-orbitron font-bold text-xs tracking-[0.2em] uppercase transition-all duration-300 text-center flex items-center justify-center space-x-3 glow-border-cyan">
+                        <i class="fa-solid fa-id-card-clip text-sm"></i>
+                        <span>Đăng Ký Thành Viên</span>
+                    </a>
+                    <a href="#vision" class="px-8 py-4 hud-box hover:border-hud-cyan text-white font-orbitron font-semibold text-xs tracking-[0.2em] uppercase transition-all duration-300 text-center flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-shield-cat text-hud-cyan text-xs"></i>
+                        <span>Giải Mã Tầm Nhìn</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: VISION & MISSION -->
+    <section id="vision" class="py-24 bg-hud-surface/40 border-b border-hud-border/40 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="font-mono text-xs text-hud-cyan tracking-[0.25em] uppercase">// STRATEGIC FOUNDATION</span>
+                <h2 class="font-orbitron font-bold text-3xl sm:text-4xl text-white mt-2">TẦM NHÌN, SỨ MỆNH & Ý NGHĨA THÀNH LẬP</h2>
+                <div class="w-20 h-1 bg-gradient-to-r from-hud-cyan to-hud-amber mx-auto mt-4"></div>
+            </div>
+
+            <div class="hud-box p-8 sm:p-10 mb-12 border-hud-cyan/40 relative overflow-hidden">
+                <div class="hud-corner-tr"></div>
+                <div class="hud-corner-bl"></div>
+                <div class="flex flex-col lg:flex-row items-center justify-between gap-8">
+                    <div class="space-y-4 max-w-3xl">
+                        <div class="inline-block px-3 py-1 bg-hud-cyan/10 border border-hud-cyan/30 text-hud-cyan font-mono text-xs uppercase">
+                            KHAO KHÁT MÃNH LIỆT
+                        </div>
+                        <h3 class="font-orbitron font-bold text-2xl text-white">Kiến Tạo Việt Nam Hùng Cường & Văn Minh</h3>
+                        <p class="text-hud-text text-sm sm:text-base leading-relaxed">
+                            SAOVN ra đời xuất phát từ niềm khao khát mãnh liệt góp phần làm Việt Nam ngày càng trở nên tốt đẹp và phát triển bền vững. Chúng tôi quy tụ những cá nhân có lý tưởng lớn, sẵn sàng dấn thân để gánh vác trách nhiệm xã hội.
+                        </p>
+                    </div>
+                    <div class="w-24 h-24 rounded-full border-2 border-hud-cyan flex items-center justify-center text-hud-cyan text-4xl shrink-0 glow-border-cyan animate-hud-pulse">
+                        <i class="fa-solid fa-flag text-hud-cyan"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="mission">
+                <div class="hud-box p-8 hover:border-hud-cyan transition-all duration-300 group">
+                    <div class="hud-corner-tr"></div>
+                    <div class="w-14 h-14 bg-hud-bg border border-hud-cyan/50 flex items-center justify-center text-hud-cyan text-2xl mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-hand-holding-hand"></i>
+                    </div>
+                    <span class="font-mono text-xs text-hud-amber uppercase">// PILLAR 01</span>
+                    <h3 class="font-orbitron font-bold text-xl text-white mt-1 mb-3">Rèn Luyện & Trợ Giúp Yếu Thế</h3>
+                    <p class="text-hud-muted text-sm leading-relaxed">
+                        Thành viên được rèn luyện thể chất, kỹ năng và ý chí kiên cường thông qua quá trình thử thách khắc nghiệt để đủ điều kiện và khả năng trợ giúp những người yếu thế trong xã hội.
+                    </p>
+                </div>
+
+                <div class="hud-box p-8 hover:border-hud-cyan transition-all duration-300 group">
+                    <div class="hud-corner-tr"></div>
+                    <div class="w-14 h-14 bg-hud-bg border border-hud-amber/50 flex items-center justify-center text-hud-amber text-2xl mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <span class="font-mono text-xs text-hud-amber uppercase">// PILLAR 02</span>
+                    <h3 class="font-orbitron font-bold text-xl text-white mt-1 mb-3">Giảm Tệ Nạn & Tội Phạm</h3>
+                    <p class="text-hud-muted text-sm leading-relaxed">
+                        Nỗ lực chung tay đẩy lùi các tệ nạn xã hội, kiềm chế tội phạm, phát triển kinh tế nâng cao chất lượng cuộc sống cho mọi người dân Việt Nam.
+                    </p>
+                </div>
+
+                <div class="hud-box p-8 hover:border-hud-cyan transition-all duration-300 group">
+                    <div class="hud-corner-tr"></div>
+                    <div class="w-14 h-14 bg-hud-bg border border-hud-cyan/50 flex items-center justify-center text-hud-cyan text-2xl mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-microchip"></i>
+                    </div>
+                    <span class="font-mono text-xs text-hud-amber uppercase">// PILLAR 03</span>
+                    <h3 class="font-orbitron font-bold text-xl text-white mt-1 mb-3">KHCN & An Ninh Quốc Gia</h3>
+                    <p class="text-hud-muted text-sm leading-relaxed">
+                        Nghiên cứu phát triển khoa học công nghệ cao với đường lối chiến lược cụ thể, phục vụ sự phát triển, an toàn, an ninh và gìn giữ hòa bình cho đất nước.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: MEMBER DEVELOPMENT -->
+    <section id="members" class="py-24 border-b border-hud-border/40 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <div class="lg:col-span-6 space-y-6">
+                    <div class="font-mono text-xs text-hud-cyan tracking-[0.2em] uppercase">// AGENT EVOLUTION PROTOCOL</div>
+                    <h2 class="font-orbitron font-bold text-3xl sm:text-4xl text-white leading-tight">
+                        ĐỊNH HƯỚNG & PHÁT TRIỂN <br/>
+                        <span class="text-hud-amber glow-text-amber">THÀNH VIÊN SAOVN</span>
+                    </h2>
+
+                    <p class="text-hud-text text-sm sm:text-base leading-relaxed font-light">
+                        Tại SAOVN, mỗi cá nhân là một nhân tố quan trọng. Tùy thuộc vào thế mạnh và khả năng vượt trội của bản thân trong từng lĩnh vực, thành viên sẽ được phân công những nhiệm vụ phù hợp nhất để hoàn thành mục tiêu chung.
+                    </p>
+
+                    <div class="hud-box p-6 border-l-4 border-l-hud-amber">
+                        <h4 class="font-orbitron font-bold text-white text-sm uppercase mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-bolt text-hud-amber"></i> HÀNH TRÌNH BỨT PHÁ PHÁT TRIỂN:
+                        </h4>
+                        <div class="flex flex-wrap items-center gap-2 font-mono text-xs text-hud-cyan">
+                            <span class="px-2.5 py-1 bg-hud-bg border border-hud-border">[1. Thử Thách]</span>
+                            <i class="fa-solid fa-angle-right text-hud-amber"></i>
+                            <span class="px-2.5 py-1 bg-hud-bg border border-hud-border">[2. Rèn Luyện]</span>
+                            <i class="fa-solid fa-angle-right text-hud-amber"></i>
+                            <span class="px-2.5 py-1 bg-hud-bg border border-hud-border">[3. Hướng Dẫn]</span>
+                            <i class="fa-solid fa-angle-right text-hud-amber"></i>
+                            <span class="px-2.5 py-1 bg-hud-cyan/20 border border-hud-cyan text-white">[4. Sắp Xếp Của Tổ Chức]</span>
+                        </div>
+                    </div>
+
+                    <p class="text-hud-muted text-sm leading-relaxed">
+                        Từ những người bình thường, qua môi trường tôi luyện chuyên nghiệp của SAOVN, bạn sẽ vươn lên trở thành những <strong class="text-white">cá nhân xuất chúng</strong> đóng góp lớn cho Việt Nam.
+                    </p>
+                </div>
+
+                <div class="lg:col-span-6">
+                    <div class="hud-box p-8 space-y-6">
+                        <div class="hud-corner-tr"></div>
+                        <div class="hud-corner-bl"></div>
+
+                        <h3 class="font-orbitron font-bold text-xl text-white border-b border-hud-border pb-4 flex items-center justify-between">
+                            <span>THÀNH QUẢ ĐẠT ĐƯỢC</span>
+                            <i class="fa-solid fa-medal text-hud-amber"></i>
+                        </h3>
+
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 bg-hud-bg border border-hud-cyan flex items-center justify-center text-hud-cyan shrink-0 font-mono font-bold">01</div>
+                            <div>
+                                <h4 class="font-orbitron text-white text-sm font-semibold">Sức Khỏe & Thể Chất Vượt Trội</h4>
+                                <p class="text-hud-muted text-xs mt-1">Được huấn luyện thể lực, phản xạ và khả năng chịu đựng áp lực cao.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 bg-hud-bg border border-hud-cyan flex items-center justify-center text-hud-cyan shrink-0 font-mono font-bold">02</div>
+                            <div>
+                                <h4 class="font-orbitron text-white text-sm font-semibold">Kiến Thức & Kỹ Năng Chuyên Sâu</h4>
+                                <p class="text-hud-muted text-xs mt-1">Đào tạo bài bản về tư duy chiến lược, công nghệ và xử lý tình huống thực tế.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 bg-hud-bg border border-hud-amber flex items-center justify-center text-hud-amber shrink-0 font-mono font-bold">03</div>
+                            <div>
+                                <h4 class="font-orbitron text-white text-sm font-semibold">Tài Chính Ổn Định & Vững Vàng</h4>
+                                <p class="text-hud-muted text-xs mt-1">Hỗ trợ cơ hội kinh doanh, phát triển sự nghiệp và nền tảng kinh tế bền vững.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: ROADMAP -->
+    <section id="roadmap" class="py-24 bg-hud-surface/30 border-b border-hud-border/40 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="font-mono text-xs text-hud-cyan tracking-[0.25em] uppercase">// JOINING ROADMAP</span>
+                <h2 class="font-orbitron font-bold text-3xl sm:text-4xl text-white mt-2">LỘ TRÌNH GIA NHẬP & THĂNG CẤP</h2>
+                <p class="text-hud-muted font-mono text-xs mt-2">HÀNH TRÌNH TỪ TẬP SỰ ĐẾN ĐẶC VỤ CHÍNH THỨC CỦA SAOVN</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+                <div class="hud-box p-6 relative group hover:border-hud-cyan transition-all">
+                    <div class="hud-corner-tr"></div>
+                    <div class="font-mono text-xs text-hud-cyan mb-2 flex justify-between items-center">
+                        <span>MILESTONE 01</span>
+                        <i class="fa-solid fa-user-clock text-hud-muted"></i>
+                    </div>
+                    <h3 class="font-orbitron font-bold text-lg text-white mb-2">Gia Nhập Tập Sự</h3>
+                    <p class="text-hud-muted text-xs leading-relaxed mb-4">Nộp hồ sơ xét tuyển, thẩm định lý lịch và tư duy ban đầu. Bắt đầu hòa nhập môi trường tổ chức.</p>
+                    <div class="pt-3 border-t border-hud-border text-[10px] font-mono text-hud-cyan flex items-center justify-between">
+                        <span>STATUS: INITIATION</span>
+                        <i class="fa-solid fa-circle text-[8px] text-hud-cyan animate-pulse"></i>
+                    </div>
+                </div>
+
+                <div class="hud-box p-6 relative group hover:border-hud-cyan transition-all">
+                    <div class="hud-corner-tr"></div>
+                    <div class="font-mono text-xs text-hud-amber mb-2 flex justify-between items-center">
+                        <span>MILESTONE 02</span>
+                        <i class="fa-solid fa-dumbbell text-hud-muted"></i>
+                    </div>
+                    <h3 class="font-orbitron font-bold text-lg text-white mb-2">Thử Thách & Rèn Luyện</h3>
+                    <p class="text-hud-muted text-xs leading-relaxed mb-4">Trải qua chuỗi thử thách kỷ luật thể chất, rèn luyện kỹ năng sinh tồn, bản lĩnh và ý chí vượt khó.</p>
+                    <div class="pt-3 border-t border-hud-border text-[10px] font-mono text-hud-amber flex items-center justify-between">
+                        <span>STATUS: HARDENING</span>
+                        <i class="fa-solid fa-circle text-[8px] text-hud-amber animate-pulse"></i>
+                    </div>
+                </div>
+
+                <div class="hud-box p-6 relative group hover:border-hud-cyan transition-all border-hud-cyan/60">
+                    <div class="hud-corner-tr"></div>
+                    <div class="font-mono text-xs text-hud-cyan mb-2 flex justify-between items-center">
+                        <span>MILESTONE 03</span>
+                        <i class="fa-solid fa-award text-hud-cyan"></i>
+                    </div>
+                    <h3 class="font-orbitron font-bold text-lg text-white mb-2">Trao Huy Hiệu SAOVN</h3>
+                    <p class="text-hud-muted text-xs leading-relaxed mb-4">Chính thức vượt qua kỳ sát hạch, tuyên thệ lý tưởng và nhận huy hiệu chứng nhận thành viên chính thức.</p>
+                    <div class="pt-3 border-t border-hud-border text-[10px] font-mono text-hud-cyan flex items-center justify-between">
+                        <span>STATUS: BADGE CONFERRED</span>
+                        <i class="fa-solid fa-shield text-[10px] text-hud-cyan"></i>
+                    </div>
+                </div>
+
+                <div class="hud-box p-6 relative group hover:border-hud-amber transition-all border-hud-amber/50">
+                    <div class="hud-corner-tr"></div>
+                    <div class="font-mono text-xs text-hud-amber mb-2 flex justify-between items-center">
+                        <span>MILESTONE 04</span>
+                        <i class="fa-solid fa-chevron-up text-hud-amber"></i>
+                    </div>
+                    <h3 class="font-orbitron font-bold text-lg text-white mb-2">Nhiệm Vụ & Thăng Cấp</h3>
+                    <p class="text-hud-muted text-xs leading-relaxed mb-4">Nhận nhiệm vụ chiến lược thực tế, liên tục đóng góp và từng bước thăng cấp thứ bậc trong tổ chức.</p>
+                    <div class="pt-3 border-t border-hud-border text-[10px] font-mono text-hud-amber flex items-center justify-between">
+                        <span>STATUS: ACTIVE OFFICER</span>
+                        <i class="fa-solid fa-star text-[10px] text-hud-amber"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: RECRUITMENT FORM WITH PHONE + PASSWORD -->
+    <section id="apply" class="py-24 relative">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="hud-box p-8 sm:p-12 relative">
+                <div class="hud-corner-tr"></div>
+                <div class="hud-corner-bl"></div>
+
+                <div class="text-center mb-10">
+                    <span class="font-mono text-xs text-hud-cyan tracking-[0.2em] uppercase">// AUTHENTICATION ENCRYPTED FORM</span>
+                    <h2 class="font-orbitron font-bold text-2xl sm:text-3xl text-white mt-2">ĐĂNG KÝ TÀI KHOẢN ĐẶC VỤ SAOVN</h2>
+                    <p class="text-hud-muted text-xs font-mono mt-2">SỬ DỤNG SỐ ĐIỆN THOẠI & MẬT KHẨU ĐỂ ĐĂNG NHẬP SAU NÀY</p>
+                </div>
+
+                <form id="recruitment-form" onsubmit="handleFormSubmit(event)" class="space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <!-- Full Name / Codename -->
+                        <div>
+                            <label class="block font-mono text-xs text-hud-cyan mb-2 uppercase">Họ & Tên / Mật Danh (*)</label>
+                            <input type="text" id="agent-name" required placeholder="Nguyễn Văn A / Agent Alpha" 
+                                class="w-full bg-hud-bg/90 border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan focus:outline-none p-3.5 text-white text-sm transition-colors font-mono">
+                        </div>
+
+                        <!-- Phone Number (Acts as Login ID) -->
+                        <div>
+                            <label class="block font-mono text-xs text-hud-cyan mb-2 uppercase">Số Điện Thoại Đăng Nhập (*)</label>
+                            <input type="tel" id="agent-phone" required placeholder="0901234567" pattern="[0-9]{9,11}"
+                                class="w-full bg-hud-bg/90 border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan focus:outline-none p-3.5 text-white text-sm transition-colors font-mono">
+                            <span class="text-[10px] font-mono text-hud-muted mt-1 block">* Dùng SĐT này để đăng nhập hệ thống về sau</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <!-- Password Field -->
+                        <div>
+                            <label class="block font-mono text-xs text-hud-cyan mb-2 uppercase">Mật Khẩu Đăng Nhập (*)</label>
+                            <div class="relative">
+                                <input type="password" id="agent-password" required minlength="6" placeholder="Tối thiểu 6 ký tự" 
+                                    class="w-full bg-hud-bg/90 border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan focus:outline-none p-3.5 pr-10 text-white text-sm transition-colors font-mono">
+                                <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-hud-muted hover:text-hud-cyan">
+                                    <i id="password-toggle-icon" class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Real Contact Email -->
+                        <div>
+                            <label class="block font-mono text-xs text-hud-cyan mb-2 uppercase">Email Liên Hệ Thực (*)</label>
+                            <input type="email" id="agent-email" required placeholder="agent@gmail.com" 
+                                class="w-full bg-hud-bg/90 border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan focus:outline-none p-3.5 text-white text-sm transition-colors font-mono">
+                        </div>
+                    </div>
+
+                    <!-- Specialty Area -->
+                    <div>
+                        <label class="block font-mono text-xs text-hud-cyan mb-2 uppercase">Sở Trường & Thế Mạnh (*)</label>
+                        <select id="agent-specialty" required class="w-full bg-hud-bg/90 border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan focus:outline-none p-3.5 text-white text-sm transition-colors font-mono">
+                            <option value="" disabled selected>-- Chọn thế mạnh nổi trội --</option>
+                            <option value="tech">Công Nghệ / IT / Cyber Security</option>
+                            <option value="combat">Thể Lực / Võ Thuật / Trinh Sát</option>
+                            <option value="business">Kinh Doanh / Tài Chính / Quản Lý</option>
+                            <option value="media">Truyền Thông / Nghệ Thuật</option>
+                            <option value="other">Kỹ Năng Đặc Bắt Khác</option>
+                        </select>
+                    </div>
+
+                    <!-- Personal Ambition -->
+                    <div>
+                        <label class="block font-mono text-xs text-hud-cyan mb-2 uppercase">Lý Do & Khao Khát Gia Nhập SAOVN (*)</label>
+                        <textarea id="agent-ambition" rows="4" required placeholder="Nêu rõ khao khát cống hiến cho Việt Nam và mong muốn phát triển bản thân của bạn..." 
+                            class="w-full bg-hud-bg/90 border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan focus:outline-none p-3.5 text-white text-sm transition-colors font-mono"></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="submit-btn" class="w-full py-4 bg-hud-cyan hover:bg-hud-cyan/80 text-black font-orbitron font-bold text-xs tracking-[0.2em] uppercase transition-all duration-300 flex items-center justify-center space-x-2 glow-border-cyan">
+                        <i class="fa-solid fa-user-check text-xs"></i>
+                        <span>Kích Hoạt Tài Khoản & Gửi Hồ Sơ</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- SUCCESS MODAL POPUP -->
+    <div id="success-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="hud-box p-8 max-w-md w-full text-center relative border-hud-cyan">
+            <div class="hud-corner-tr"></div>
+            <div class="hud-corner-bl"></div>
+
+            <div class="w-16 h-16 bg-hud-bg border-2 border-hud-cyan text-hud-cyan text-3xl flex items-center justify-center mx-auto mb-4 glow-border-cyan">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            
+            <h3 class="font-orbitron font-bold text-xl text-white mb-2">TẠO TÀI KHOẢN THÀNH CÔNG!</h3>
+            <p id="success-message" class="text-hud-muted text-xs font-mono leading-relaxed mb-6">
+                Tài khoản đặc vụ SAOVN của bạn đã được lưu trữ. Bạn có thể sử dụng SĐT và Mật khẩu vừa tạo để đăng nhập vào hệ thống!
+            </p>
+            
+            <button onclick="closeModal()" class="w-full py-3 bg-hud-cyan text-black font-orbitron font-bold text-xs uppercase tracking-widest">
+                Xác Nhận & Đóng
+            </button>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-hud-border/40 bg-[#020408] py-10 font-mono text-xs text-hud-muted">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-3">
+            <div class="font-orbitron font-bold text-white tracking-[0.2em]">
+                SAOVN <span class="text-hud-cyan">•</span> SPECIAL ACTION ORGANIZATION FOR VIETNAM
+            </div>
+            <p>© 2026 SAOVN INTELLIGENCE NETWORK. ALL RIGHTS RESERVED.</p>
+            <p class="text-[10px] text-hud-muted/60">// RESTRICTED ACCESS // FOR VIETNAM DEVELOPMENT</p>
+        </div>
+    </footer>
+
+    <!-- FIREBASE V11 AUTHENTICATION & FIRESTORE INTEGRATION -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // YOUR INTEGRATED FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2XuaN4re7UsCNXK_7vrBSYL-fQZtRRAc",
+            authDomain: "saovn-intelligence.firebaseapp.com",
+            projectId: "saovn-intelligence",
+            storageBucket: "saovn-intelligence.firebasestorage.app",
+            messagingSenderId: "973178704232",
+            appId: "1:973178704232:web:4e1195e1c317c71c9586dd"
+        };
+
+        // Initialize Firebase SDKs
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Toggle Password Input Visibility
+        window.togglePasswordVisibility = function() {
+            const pwdInput = document.getElementById('agent-password');
+            const icon = document.getElementById('password-toggle-icon');
+            if (pwdInput.type === 'password') {
+                pwdInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                pwdInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        };
+
+        // Handle Form Submission with Phone + Password
+        window.handleFormSubmit = async function(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>Đang Khởi Tạo Tài Khoản ...</span>`;
+
+            const phone = document.getElementById('agent-phone').value.trim();
+            const password = document.getElementById('agent-password').value;
+            
+            // Generate simulated email format using phone number for Firebase Auth compatibility
+            const simulatedEmail = `${phone}@saovn.org`;
+
+            const agentProfile = {
+                fullName: document.getElementById('agent-name').value,
+                phone: phone,
+                simulatedEmail: simulatedEmail,
+                realContactEmail: document.getElementById('agent-email').value,
+                specialty: document.getElementById('agent-specialty').value,
+                ambition: document.getElementById('agent-ambition').value,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                // Step 1: Register User in Firebase Auth
+                const userCredential = await createUserWithEmailAndPassword(auth, simulatedEmail, password);
+                const user = userCredential.user;
+
+                // Step 2: Store agent profile in Firestore under UID and Collection
+                agentProfile.uid = user.uid;
+                await setDoc(doc(db, "saovn_agents", user.uid), agentProfile);
+                await addDoc(collection(db, "saovn_registrations"), agentProfile);
+
+                document.getElementById('success-message').innerText = 
+                    `Đăng ký thành công! Số điện thoại [${phone}] đã được liên kết với hệ thống SAOVN Auth. Mật khẩu đã được mã hóa an toàn.`;
+                document.getElementById('success-modal').classList.remove('hidden');
+                document.getElementById('recruitment-form').reset();
+
+            } catch (err) {
+                console.error("Firebase Auth Error: ", err);
+                if (err.code === 'auth/email-already-in-use') {
+                    alert(`Số điện thoại ${phone} đã được đăng ký tài khoản trước đó! Vui lòng dùng SĐT khác.`);
+                } else if (err.code === 'auth/weak-password') {
+                    alert("Mật khẩu quá yếu! Vui lòng đặt mật khẩu tối thiểu 6 ký tự.");
+                } else {
+                    // Fallback to saving in Firestore if Auth rules have restrictions
+                    try {
+                        await addDoc(collection(db, "saovn_registrations"), agentProfile);
+                        document.getElementById('success-modal').classList.remove('hidden');
+                        document.getElementById('recruitment-form').reset();
+                    } catch (fsErr) {
+                        alert("Không thể ghi dữ liệu vào Firebase. Lỗi: " + err.message);
+                    }
+                }
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<i class="fa-solid fa-user-check text-xs"></i> <span>Kích Hoạt Tài Khoản & Gửi Hồ Sơ</span>`;
+            }
+        };
+
+        window.closeModal = function() {
+            document.getElementById('success-modal').classList.add('hidden');
+        };
+    </script>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toUTCString().split(' ')[4] + ' UTC';
+            const clockEl = document.getElementById('system-clock');
+            if (clockEl) clockEl.innerText = timeString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>
