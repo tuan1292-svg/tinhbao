@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAOVN - Dashboard Đặc Vụ</title>
+    <title>SAOVN - Dashboard & Hồ Sơ Đặc Vụ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Inter:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -19,6 +19,7 @@
                             cyan: '#00f0ff',
                             amber: '#ffb700',
                             green: '#00ff88',
+                            red: '#ff0055',
                             muted: '#64748b'
                         }
                     },
@@ -39,11 +40,16 @@
         .hud-corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid #00f0ff; border-left: 2px solid #00f0ff; position: absolute; width: 10px; height: 10px; }
         .glow-text-cyan { text-shadow: 0 0 12px rgba(0, 240, 255, 0.6); }
         .glow-border-cyan { box-shadow: 0 0 15px rgba(0, 240, 255, 0.3); }
+        /* Tùy chỉnh icon lịch lịch chọn ngày */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.8) sepia(100%) saturate(1000%) hue-rotate(140deg);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body class="hud-grid min-h-screen flex flex-col justify-between">
 
-    <!-- Header -->
+    <!-- Header Navigation -->
     <header class="border-b border-hud-border/50 bg-[#04070d]/90 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
@@ -51,29 +57,42 @@
                     <i class="fa-solid fa-user-ninja"></i>
                 </div>
                 <div>
-                    <span class="font-orbitron font-bold text-lg text-white">SAO<span class="text-hud-cyan glow-text-cyan">VN</span> AGENT DASHBOARD</span>
-                    <span class="text-[9px] font-mono text-hud-muted block uppercase">HỆ THỐNG QUẢN LÝ TIẾN TRÌNH NHIỆM VỤ</span>
+                    <span class="font-orbitron font-bold text-lg text-white">SAO<span class="text-hud-cyan glow-text-cyan">VN</span> PORTAL</span>
+                    <span class="text-[9px] font-mono text-hud-muted block uppercase">HỆ THỐNG QUẢN LÝ TIẾN TRÌNH & HỒ SƠ THÀNH VIÊN</span>
                 </div>
             </div>
 
-            <button onclick="handleLogout()" class="px-4 py-2 border border-hud-amber text-hud-amber hover:bg-hud-amber hover:text-black font-mono text-xs uppercase transition-all flex items-center gap-2">
-                <i class="fa-solid fa-right-from-bracket"></i> Đăng Xuất
-            </button>
+            <div class="flex items-center gap-3">
+                <a href="tra_3.html" class="px-3 py-2 border border-hud-border text-hud-cyan hover:bg-hud-cyan/10 font-mono text-xs uppercase transition-all hidden sm:flex items-center gap-1.5">
+                    <i class="fa-solid fa-magnifying-glass"></i> Tra Cứu
+                </a>
+                <button onclick="handleLogout()" class="px-4 py-2 border border-hud-amber text-hud-amber hover:bg-hud-amber hover:text-black font-mono text-xs uppercase transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-right-from-bracket"></i> Đăng Xuất
+                </button>
+            </div>
         </div>
     </header>
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow space-y-8">
         
-        <!-- Profile Banner -->
+        <!-- Top Profile Overview -->
         <div class="hud-box p-6 border-l-4 border-l-hud-cyan flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div class="hud-corner-tr"></div>
             <div class="hud-corner-bl"></div>
 
-            <div>
-                <span class="font-mono text-xs text-hud-cyan uppercase">// THÔNG TIN ĐẶC VỤ</span>
-                <h1 id="user-name" class="font-orbitron font-bold text-2xl text-white mt-1">Đang tải...</h1>
-                <p class="font-mono text-xs text-hud-muted mt-1">SĐT: <span id="user-phone" class="text-white">---</span> | Chuyên môn: <span id="user-specialty" class="text-hud-amber uppercase">---</span></p>
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 bg-hud-bg border border-hud-cyan text-hud-cyan text-2xl flex items-center justify-center shrink-0 glow-border-cyan font-mono font-bold">
+                    <i class="fa-solid fa-id-card"></i>
+                </div>
+                <div>
+                    <span class="font-mono text-xs text-hud-cyan uppercase">// HỒ SƠ THÀNH VIÊN SAOVN</span>
+                    <h1 id="user-name-display" class="font-orbitron font-bold text-2xl text-white mt-0.5">Đang tải...</h1>
+                    <p class="font-mono text-xs text-hud-muted mt-1">
+                        SĐT: <span id="user-phone-display" class="text-white">---</span> | 
+                        Nghề nghiệp: <span id="user-job-display" class="text-hud-amber uppercase">---</span>
+                    </p>
+                </div>
             </div>
 
             <div class="flex items-center gap-4 font-mono text-xs">
@@ -88,83 +107,178 @@
             </div>
         </div>
 
-        <!-- Task & Training Progress -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <!-- Progress Overview Card -->
-            <div class="hud-box p-6 space-y-4">
-                <div class="hud-corner-tr"></div>
-                <h2 class="font-orbitron font-bold text-lg text-white border-b border-hud-border pb-3 flex justify-between">
-                    <span>TIẾN TRÌNH RÈN LUYỆN</span>
-                    <i class="fa-solid fa-chart-line text-hud-cyan"></i>
-                </h2>
-                
-                <div>
-                    <div class="flex justify-between font-mono text-xs mb-1">
-                        <span class="text-hud-muted">Thể Lực & Rèn Luyện:</span>
-                        <span class="text-hud-cyan font-bold">25%</span>
-                    </div>
-                    <div class="w-full bg-hud-bg border border-hud-border h-2.5 p-0.5">
-                        <div class="bg-hud-cyan h-full w-[25%] glow-border-cyan"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="flex justify-between font-mono text-xs mb-1">
-                        <span class="text-hud-muted">Kỹ Năng & Lý Thuyết:</span>
-                        <span class="text-hud-amber font-bold">50%</span>
-                    </div>
-                    <div class="w-full bg-hud-bg border border-hud-border h-2.5 p-0.5">
-                        <div class="bg-hud-amber h-full w-[50%]"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="flex justify-between font-mono text-xs mb-1">
-                        <span class="text-hud-muted">Nhiệm Vụ Thực Địa:</span>
-                        <span class="text-hud-green font-bold">10%</span>
-                    </div>
-                    <div class="w-full bg-hud-bg border border-hud-border h-2.5 p-0.5">
-                        <div class="bg-hud-green h-full w-[10%]"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Active Mission List -->
-            <div class="lg:col-span-2 hud-box p-6">
+            <!-- PHẦN 1: FORM CẬP NHẬT THÔNG TIN CÁ NHÂN (CHI TIẾT) -->
+            <div class="lg:col-span-7 hud-box p-6 relative">
                 <div class="hud-corner-tr"></div>
                 <div class="hud-corner-bl"></div>
 
-                <h2 class="font-orbitron font-bold text-lg text-white border-b border-hud-border pb-3 mb-4 flex justify-between">
-                    <span>DANH SÁCH NHIỆM VỤ ĐƯỢC GIAO</span>
-                    <i class="fa-solid fa-list-check text-hud-amber"></i>
-                </h2>
+                <div class="flex items-center justify-between border-b border-hud-border pb-4 mb-6">
+                    <h2 class="font-orbitron font-bold text-lg text-white flex items-center gap-2">
+                        <i class="fa-solid fa-user-pen text-hud-cyan"></i>
+                        <span>CẬP NHẬT THÔNG TIN CÁ NHÂN</span>
+                    </h2>
+                    <span class="font-mono text-[10px] text-hud-muted uppercase">// ĐỒNG BỘ FIRESTORE</span>
+                </div>
 
-                <div class="space-y-3 font-mono text-xs">
-                    <div class="p-3 bg-hud-bg/80 border border-hud-cyan/40 flex items-center justify-between">
+                <!-- Thông báo trạng thái lưu -->
+                <div id="update-msg" class="hidden mb-6 p-3 font-mono text-xs text-center border rounded"></div>
+
+                <form id="profile-form" onsubmit="handleUpdateProfile(event)" class="space-y-5">
+                    
+                    <!-- Hàng 1: Họ tên & Ngày sinh -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
-                            <span class="px-2 py-0.5 bg-hud-cyan/20 border border-hud-cyan text-hud-cyan text-[10px]">ĐANG THỰC HIỆN</span>
-                            <h4 class="font-bold text-white mt-1">NV-01: Hoàn thiện thông tin hồ sơ cá nhân và xác minh SĐT</h4>
+                            <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Họ và Tên (*)</label>
+                            <input type="text" id="agent-fullname" required placeholder="Nguyễn Văn A" 
+                                class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
                         </div>
-                        <span class="text-hud-cyan">80%</span>
+
+                        <div>
+                            <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Ngày Tháng Năm Sinh (*)</label>
+                            <input type="date" id="agent-dob" required
+                                class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
+                        </div>
                     </div>
 
-                    <div class="p-3 bg-hud-bg/80 border border-hud-border flex items-center justify-between opacity-80">
+                    <!-- Hàng 2: SĐT & Email -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
-                            <span class="px-2 py-0.5 bg-hud-amber/20 border border-hud-amber text-hud-amber text-[10px]">CHỜ KÍCH HOẠT</span>
-                            <h4 class="font-bold text-white mt-1">NV-02: Tham gia buổi phổ biến định hướng chiến lược SAOVN</h4>
+                            <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Số Điện Thoại (*)</label>
+                            <input type="tel" id="agent-phone" required pattern="[0-9]{9,11}" placeholder="0901234567" 
+                                class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
                         </div>
-                        <span class="text-hud-muted">0%</span>
+
+                        <div>
+                            <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Email Liên Hệ (*)</label>
+                            <input type="email" id="agent-email" required placeholder="thanhvien@gmail.com" 
+                                class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
+                        </div>
                     </div>
 
-                    <div class="p-3 bg-hud-bg/80 border border-hud-border flex items-center justify-between opacity-80">
+                    <!-- Hàng 3: Trình độ học vấn & Nghề nghiệp -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
-                            <span class="px-2 py-0.5 bg-hud-amber/20 border border-hud-amber text-hud-amber text-[10px]">CHỜ KÍCH HOẠT</span>
-                            <h4 class="font-bold text-white mt-1">NV-03: Kiểm tra sát hạch kỹ năng chuyên môn ban đầu</h4>
+                            <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Trình Độ Học Vấn</label>
+                            <select id="agent-education" class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
+                                <option value="" class="bg-hud-bg text-hud-muted">-- Chọn trình độ --</option>
+                                <option value="THPT" class="bg-hud-bg">Trung Học Phổ Thông</option>
+                                <option value="Trung Cấp / Cao Đẳng" class="bg-hud-bg">Trung Cấp / Cao Đẳng</option>
+                                <option value="Đại Học" class="bg-hud-bg">Đại Học</option>
+                                <option value="Sau Đại Học (Thạc sĩ/Tiến sĩ)" class="bg-hud-bg">Sau Đại Học</option>
+                                <option value="Khác" class="bg-hud-bg">Khác</option>
+                            </select>
                         </div>
-                        <span class="text-hud-muted">0%</span>
+
+                        <div>
+                            <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Nghề Nghiệp Hiện Tại</label>
+                            <input type="text" id="agent-job" placeholder="VD: Lái xe, Lập trình viên, Kỹ sư..." 
+                                class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
+                        </div>
+                    </div>
+
+                    <!-- Hàng 4: Quê quán -->
+                    <div>
+                        <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Quê Quán</label>
+                        <input type="text" id="agent-hometown" placeholder="VD: Nam Định, Hà Nội, TP. Hồ Chí Minh..." 
+                            class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
+                    </div>
+
+                    <!-- Hàng 5: Địa chỉ hiện tại -->
+                    <div>
+                        <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Địa Chỉ Hiện Tại (Thường Trú / Tạm Trú)</label>
+                        <input type="text" id="agent-address" placeholder="VD: 123 Đường ABC, Phường X, Quận Y, TP.HCM..." 
+                            class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
+                    </div>
+
+                    <!-- Button Submit -->
+                    <button type="submit" id="save-btn" class="w-full py-3.5 bg-hud-cyan hover:bg-hud-cyan/80 text-black font-orbitron font-bold text-xs uppercase tracking-widest transition-all glow-border-cyan flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>LƯU CẬP NHẬT HỒ SƠ</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- PHẦN 2: TIẾN TRÌNH NHIỆM VỤ & RÈN LUYỆN -->
+            <div class="lg:col-span-5 space-y-6">
+                
+                <!-- Progress Card -->
+                <div class="hud-box p-6 space-y-4">
+                    <div class="hud-corner-tr"></div>
+                    <h2 class="font-orbitron font-bold text-lg text-white border-b border-hud-border pb-3 flex justify-between items-center">
+                        <span>TIẾN TRÌNH THÀNH VIÊN</span>
+                        <i class="fa-solid fa-chart-line text-hud-cyan"></i>
+                    </h2>
+                    
+                    <div>
+                        <div class="flex justify-between font-mono text-xs mb-1">
+                            <span class="text-hud-muted">Hồ Sơ Cá Nhân:</span>
+                            <span id="profile-progress-text" class="text-hud-cyan font-bold">0%</span>
+                        </div>
+                        <div class="w-full bg-hud-bg border border-hud-border h-2.5 p-0.5">
+                            <div id="profile-progress-bar" class="bg-hud-cyan h-full w-[0%] transition-all duration-500 glow-border-cyan"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between font-mono text-xs mb-1">
+                            <span class="text-hud-muted">Kỹ Năng & Lĩnh Vực:</span>
+                            <span class="text-hud-amber font-bold">50%</span>
+                        </div>
+                        <div class="w-full bg-hud-bg border border-hud-border h-2.5 p-0.5">
+                            <div class="bg-hud-amber h-full w-[50%]"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between font-mono text-xs mb-1">
+                            <span class="text-hud-muted">Nhiệm Vụ Thực Địa:</span>
+                            <span class="text-hud-green font-bold">15%</span>
+                        </div>
+                        <div class="w-full bg-hud-bg border border-hud-border h-2.5 p-0.5">
+                            <div class="bg-hud-green h-full w-[15%]"></div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Active Mission List -->
+                <div class="hud-box p-6">
+                    <div class="hud-corner-tr"></div>
+                    <div class="hud-corner-bl"></div>
+
+                    <h2 class="font-orbitron font-bold text-lg text-white border-b border-hud-border pb-3 mb-4 flex justify-between items-center">
+                        <span>NHIỆM VỤ ĐƯỢC GIAO</span>
+                        <i class="fa-solid fa-list-check text-hud-amber"></i>
+                    </h2>
+
+                    <div class="space-y-3 font-mono text-xs">
+                        <div class="p-3 bg-hud-bg/80 border border-hud-cyan/40 flex items-center justify-between">
+                            <div>
+                                <span class="px-2 py-0.5 bg-hud-cyan/20 border border-hud-cyan text-hud-cyan text-[10px]">ƯU TIÊN</span>
+                                <h4 class="font-bold text-white mt-1">NV-01: Cập nhật hoàn chỉnh 8 thông tin hồ sơ cá nhân</h4>
+                            </div>
+                            <span id="nv1-status" class="text-hud-amber">ĐANG LÀM</span>
+                        </div>
+
+                        <div class="p-3 bg-hud-bg/80 border border-hud-border flex items-center justify-between opacity-80">
+                            <div>
+                                <span class="px-2 py-0.5 bg-hud-amber/20 border border-hud-amber text-hud-amber text-[10px]">CHỜ KÍCH HOẠT</span>
+                                <h4 class="font-bold text-white mt-1">NV-02: Tiếp nhận phổ biến định hướng SAOVN</h4>
+                            </div>
+                            <span class="text-hud-muted">0%</span>
+                        </div>
+
+                        <div class="p-3 bg-hud-bg/80 border border-hud-border flex items-center justify-between opacity-80">
+                            <div>
+                                <span class="px-2 py-0.5 bg-hud-amber/20 border border-hud-amber text-hud-amber text-[10px]">CHỜ KÍCH HOẠT</span>
+                                <h4 class="font-bold text-white mt-1">NV-03: Kiểm tra sát hạch chuyên môn ban đầu</h4>
+                            </div>
+                            <span class="text-hud-muted">0%</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
         </div>
@@ -173,13 +287,14 @@
 
     <!-- Footer -->
     <footer class="border-t border-hud-border/40 py-4 font-mono text-xs text-hud-muted text-center">
-        © 2026 SAOVN INTELLIGENCE DASHBOARD. AUTHORIZED ACCESS ONLY.
+        © 2026 SAOVN INTELLIGENCE DASHBOARD. ALL RIGHTS RESERVED.
     </footer>
 
+    <!-- Firebase SDK & Logic Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB2XuaN4re7UsCNXK_7vrBSYL-fQZtRRAc",
@@ -194,30 +309,112 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Check auth status
+        let currentUserUID = null;
+
+        // Tính % hoàn thiện hồ sơ dựa trên 8 trường
+        function calculateProfileProgress(data) {
+            const fields = ['fullName', 'dob', 'phone', 'realContactEmail', 'education', 'job', 'hometown', 'address'];
+            let filled = 0;
+            fields.forEach(f => {
+                if (data && data[f] && data[f].toString().trim() !== '') filled++;
+            });
+            const percent = Math.round((filled / fields.length) * 100);
+            
+            document.getElementById('profile-progress-text').innerText = percent + "%";
+            document.getElementById('profile-progress-bar').style.width = percent + "%";
+            
+            if (percent === 100) {
+                document.getElementById('nv1-status').innerText = "HOÀN THÀNH";
+                document.getElementById('nv1-status').className = "text-hud-green font-bold";
+            }
+        }
+
+        // 1. Kiểm tra trạng thái đăng nhập & Tải dữ liệu cũ từ Firebase Firestore
         onAuthStateChanged(auth, async (user) => {
             if (user) {
+                currentUserUID = user.uid;
                 try {
                     const docRef = doc(db, "saovn_agents", user.uid);
                     const docSnap = await getDoc(docRef);
 
                     if (docSnap.exists()) {
                         const data = docSnap.data();
-                        document.getElementById('user-name').innerText = data.fullName || "Đặc vụ SAOVN";
-                        document.getElementById('user-phone').innerText = data.phone || "N/A";
-                        document.getElementById('user-specialty').innerText = data.specialty || "N/A";
-                    } else {
-                        document.getElementById('user-name').innerText = "Đặc vụ (" + user.email + ")";
+
+                        // Điền thông tin lên Header Banner
+                        document.getElementById('user-name-display').innerText = data.fullName || "Chưa cập nhật";
+                        document.getElementById('user-phone-display').innerText = data.phone || "N/A";
+                        document.getElementById('user-job-display').innerText = data.job || "Chưa cập nhật";
+
+                        // Load dữ liệu cũ vào Form
+                        document.getElementById('agent-fullname').value = data.fullName || '';
+                        document.getElementById('agent-dob').value = data.dob || '';
+                        document.getElementById('agent-phone').value = data.phone || '';
+                        document.getElementById('agent-email').value = data.realContactEmail || data.email || '';
+                        document.getElementById('agent-education').value = data.education || '';
+                        document.getElementById('agent-job').value = data.job || '';
+                        document.getElementById('agent-hometown').value = data.hometown || '';
+                        document.getElementById('agent-address').value = data.address || '';
+
+                        calculateProfileProgress(data);
                     }
-                } catch (e) {
-                    console.error("Lỗi lấy thông tin:", e);
+                } catch (err) {
+                    console.error("Lỗi tải hồ sơ cá nhân:", err);
                 }
             } else {
-                // Redirect if not logged in
                 window.location.href = "login.html";
             }
         });
 
+        // 2. Xử lý Ghi / Cập nhật dữ liệu trực tiếp lên Firebase
+        window.handleUpdateProfile = async function(event) {
+            event.preventDefault();
+            if (!currentUserUID) return;
+
+            const saveBtn = document.getElementById('save-btn');
+            const msgDiv = document.getElementById('update-msg');
+
+            msgDiv.className = "hidden mb-6 p-3 font-mono text-xs text-center border rounded";
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>ĐANG ĐỒNG BỘ TỚI FIREBASE...</span>`;
+
+            const updatedData = {
+                fullName: document.getElementById('agent-fullname').value.trim(),
+                dob: document.getElementById('agent-dob').value,
+                phone: document.getElementById('agent-phone').value.trim(),
+                realContactEmail: document.getElementById('agent-email').value.trim(),
+                education: document.getElementById('agent-education').value,
+                job: document.getElementById('agent-job').value.trim(),
+                hometown: document.getElementById('agent-hometown').value.trim(),
+                address: document.getElementById('agent-address').value.trim(),
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                const agentRef = doc(db, "saovn_agents", currentUserUID);
+                // Dùng setDoc với merge: true cho phép vừa ghi mới vừa chỉnh sửa về sau
+                await setDoc(agentRef, updatedData, { merge: true });
+
+                // Cập nhật lại UI hiển thị lập tức
+                document.getElementById('user-name-display').innerText = updatedData.fullName;
+                document.getElementById('user-phone-display').innerText = updatedData.phone;
+                document.getElementById('user-job-display').innerText = updatedData.job || "Chưa cập nhật";
+
+                calculateProfileProgress(updatedData);
+
+                msgDiv.className = "mb-6 p-3 font-mono text-xs text-center border rounded bg-hud-green/10 border-hud-green text-hud-green block";
+                msgDiv.innerHTML = `<i class="fa-solid fa-check-circle mr-1"></i> Hồ sơ đã được ghi thành công lên hệ thống! Bạn có thể chỉnh sửa lại bất kỳ lúc nào.`;
+
+            } catch (err) {
+                console.error("Lỗi cập nhật Firestore:", err);
+                msgDiv.className = "mb-6 p-3 font-mono text-xs text-center border rounded bg-hud-red/10 border-hud-red text-hud-red block";
+                msgDiv.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> Không thể lưu dữ liệu: ${err.message}`;
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> <span>LƯU CẬP NHẬT HỒ SƠ</span>`;
+            }
+        };
+
+        // 3. Đăng xuất
         window.handleLogout = function() {
             signOut(auth).then(() => {
                 window.location.href = "login.html";
