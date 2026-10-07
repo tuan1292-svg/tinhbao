@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAOVN - Đăng Nhập Cổng Đặc Vụ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Inter:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        hud: {
+                            bg: '#04070d',
+                            surface: 'rgba(10, 18, 32, 0.75)',
+                            border: 'rgba(0, 240, 255, 0.25)',
+                            cyan: '#00f0ff',
+                            amber: '#ffb700',
+                            green: '#00ff88',
+                            red: '#ff0055',
+                            muted: '#64748b'
+                        }
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        mono: ['Share Tech Mono', 'monospace'],
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #04070d; color: #e2e8f0; font-family: 'Inter', sans-serif; }
+        .hud-grid { background-size: 50px 50px; background-image: linear-gradient(to right, rgba(0, 240, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(0, 240, 255, 0.03) 1px, transparent 1px); }
+        .hud-box { position: relative; background: rgba(8, 15, 28, 0.85); border: 1px solid rgba(0, 240, 255, 0.25); backdrop-filter: blur(12px); }
+        .hud-corner-tr { top: -1px; right: -1px; border-top: 2px solid #00f0ff; border-right: 2px solid #00f0ff; position: absolute; width: 10px; height: 10px; }
+        .hud-corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid #00f0ff; border-left: 2px solid #00f0ff; position: absolute; width: 10px; height: 10px; }
+        .glow-text-cyan { text-shadow: 0 0 12px rgba(0, 240, 255, 0.6); }
+        .glow-border-cyan { box-shadow: 0 0 15px rgba(0, 240, 255, 0.3); }
+    </style>
+</head>
+<body class="hud-grid min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-md w-full hud-box p-8 relative">
+        <div class="hud-corner-tr"></div>
+        <div class="hud-corner-bl"></div>
+
+        <div class="text-center mb-8">
+            <div class="w-12 h-12 bg-hud-bg border border-hud-cyan flex items-center justify-center text-hud-cyan glow-border-cyan mx-auto mb-3">
+                <i class="fa-solid fa-lock text-xl"></i>
+            </div>
+            <h1 class="font-orbitron font-bold text-2xl text-white tracking-widest">SAO<span class="text-hud-cyan glow-text-cyan">VN</span> LOGIN</h1>
+            <p class="font-mono text-xs text-hud-muted mt-1 uppercase tracking-wider">// ĐĂNG NHẬP CỔNG ĐẶC VỤ</p>
+        </div>
+
+        <div id="error-msg" class="hidden mb-4 p-3 bg-hud-red/10 border border-hud-red text-hud-red font-mono text-xs rounded text-center"></div>
+
+        <form id="login-form" onsubmit="handleLogin(event)" class="space-y-5">
+            <div>
+                <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Số Điện Thoại</label>
+                <div class="relative">
+                    <input type="tel" id="login-phone" required placeholder="0901234567" pattern="[0-9]{9,11}"
+                        class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3.5 pl-10 text-white font-mono text-sm">
+                    <i class="fa-solid fa-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-hud-muted text-xs"></i>
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Mật Khẩu</label>
+                <div class="relative">
+                    <input type="password" id="login-password" required placeholder="••••••••"
+                        class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3.5 pl-10 text-white font-mono text-sm">
+                    <i class="fa-solid fa-key absolute left-3.5 top-1/2 -translate-y-1/2 text-hud-muted text-xs"></i>
+                </div>
+            </div>
+
+            <button type="submit" id="login-btn" class="w-full py-4 bg-hud-cyan hover:bg-hud-cyan/80 text-black font-orbitron font-bold text-xs uppercase tracking-widest transition-all glow-border-cyan flex items-center justify-center gap-2">
+                <i class="fa-solid fa-right-to-bracket"></i>
+                <span>XÁC NHẬN ĐĂNG NHẬP</span>
+            </button>
+        </form>
+
+        <div class="mt-6 text-center font-mono text-xs text-hud-muted">
+            Chưa có tài khoản? <a href="index.html#apply" class="text-hud-cyan underline hover:text-white">Đăng ký tại đây</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2XuaN4re7UsCNXK_7vrBSYL-fQZtRRAc",
+            authDomain: "saovn-intelligence.firebaseapp.com",
+            projectId: "saovn-intelligence",
+            storageBucket: "saovn-intelligence.firebasestorage.app",
+            messagingSenderId: "973178704232",
+            appId: "1:973178704232:web:4e1195e1c317c71c9586dd"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        window.handleLogin = async function(event) {
+            event.preventDefault();
+            const phone = document.getElementById('login-phone').value.trim();
+            const password = document.getElementById('login-password').value;
+            const btn = document.getElementById('login-btn');
+            const errDiv = document.getElementById('error-msg');
+
+            errDiv.classList.add('hidden');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>ĐANG ĐĂNG NHẬP...</span>`;
+
+            const simulatedEmail = `${phone}@saovn.org`;
+
+            try {
+                await signInWithEmailAndPassword(auth, simulatedEmail, password);
+                window.location.href = "dashboard.html";
+            } catch (err) {
+                errDiv.classList.remove('hidden');
+                if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+                    errDiv.innerText = "Số điện thoại hoặc mật khẩu không chính xác!";
+                } else {
+                    errDiv.innerText = "Lỗi đăng nhập: " + err.message;
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> <span>XÁC NHẬN ĐĂNG NHẬP</span>`;
+            }
+        };
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAOVN - Tra Cứu Hồ Sơ Đặc Vụ</title>
+    <title>SAOVN - Tra Cứu Hồ Sơ & Danh Sách Thành Viên</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -123,7 +123,7 @@
     </header>
 
     <!-- Main Content Area -->
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 py-12 w-full flex-grow">
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 py-10 w-full flex-grow">
         
         <!-- Header & Agent Counter -->
         <div class="text-center mb-10">
@@ -171,7 +171,7 @@
         <div id="status-message" class="hidden text-center p-4 font-mono text-sm mb-6 hud-box"></div>
 
         <!-- Agent Detail Profile Card (Hidden by default) -->
-        <div id="agent-card" class="hidden hud-box p-6 sm:p-8 border-l-4 border-l-hud-cyan relative">
+        <div id="agent-card" class="hidden hud-box p-6 sm:p-8 border-l-4 border-l-hud-cyan relative mb-12">
             <div class="hud-corner-tr"></div>
             <div class="hud-corner-bl"></div>
 
@@ -227,17 +227,117 @@
             </div>
         </div>
 
+        <!-- ======================================================== -->
+        <!-- SECTION: DANH SÁCH THÀNH VIÊN LẬP OFFLINE (MỚI & CŨ)    -->
+        <!-- ======================================================== -->
+        <div class="mt-14 pt-8 border-t border-hud-border/40">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="font-orbitron font-bold text-xl text-white tracking-wide flex items-center gap-2">
+                        <i class="fa-solid fa-users text-hud-cyan"></i>
+                        <span>DANH SÁCH THÀNH VIÊN LẬP OFFLINE</span>
+                    </h2>
+                    <p class="text-hud-muted font-mono text-xs mt-1">Sắp xếp theo thứ tự người mới đăng ký nhất lên đầu</p>
+                </div>
+                <span class="font-mono text-xs px-3 py-1 bg-hud-cyan/10 border border-hud-cyan/40 text-hud-cyan self-start sm:self-auto">
+                    LIVE SYNC ACTIVE
+                </span>
+            </div>
+
+            <!-- TABLE 1: THÀNH VIÊN MỚI ĐĂNG KÝ -->
+            <div class="hud-box p-4 sm:p-6 mb-10 border-hud-green/60">
+                <div class="hud-corner-tr"></div>
+                <div class="hud-corner-bl"></div>
+
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-hud-green/30">
+                    <span class="font-orbitron text-xs font-bold text-hud-green tracking-wider uppercase flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-hud-green animate-pulse"></span>
+                        THÀNH VIÊN MỚI ĐĂNG KÝ (MỚI NHẤT)
+                    </span>
+                    <span class="font-mono text-[10px] text-hud-muted">CẬP NHẬT TRỰC TIẾP</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full font-mono text-xs text-left">
+                        <thead>
+                            <tr class="border-b border-hud-border text-hud-muted uppercase text-[10px]">
+                                <th class="py-2.5 px-3">STT</th>
+                                <th class="py-2.5 px-3">Họ và Tên</th>
+                                <th class="py-2.5 px-3">Số Điện Thoại</th>
+                                <th class="py-2.5 px-3">Lĩnh Vực</th>
+                                <th class="py-2.5 px-3 text-right">Ngày Đăng Ký</th>
+                            </tr>
+                        </thead>
+                        <tbody id="list-new-members">
+                            <tr>
+                                <td colspan="5" class="py-6 text-center text-hud-muted">
+                                    <i class="fa-solid fa-spinner animate-spin text-hud-cyan text-base mr-2"></i>
+                                    Đang tải danh sách thành viên mới...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PHẦN PHÂN TÁCH KHOẢNG CÁCH NỔI BẬT -->
+            <div class="relative my-12 text-center">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-dashed border-hud-border"></div></div>
+                <div class="relative inline-block px-6 py-2 bg-[#04070d] border border-hud-amber/50 font-mono text-xs text-hud-amber uppercase tracking-widest shadow-lg">
+                    <i class="fa-solid fa-clock-rotate-left mr-2"></i> DANH SÁCH THÀNH VIÊN ĐÃ ĐĂNG KÝ CŨ HƠN
+                </div>
+            </div>
+
+            <!-- TABLE 2: THÀNH VIÊN ĐÃ ĐĂNG KÝ CŨ -->
+            <div class="hud-box p-4 sm:p-6 opacity-90 border-hud-border/70">
+                <div class="hud-corner-tr"></div>
+                <div class="hud-corner-bl"></div>
+
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-hud-border">
+                    <span class="font-orbitron text-xs font-bold text-hud-muted tracking-wider uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-box-archive text-hud-muted"></i>
+                        THÀNH VIÊN CŨ HƠN
+                    </span>
+                    <span class="font-mono text-[10px] text-hud-muted">LỊCH SỬ HỆ THỐNG</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full font-mono text-xs text-left">
+                        <thead>
+                            <tr class="border-b border-hud-border text-hud-muted uppercase text-[10px]">
+                                <th class="py-2.5 px-3">STT</th>
+                                <th class="py-2.5 px-3">Họ và Tên</th>
+                                <th class="py-2.5 px-3">Số Điện Thoại</th>
+                                <th class="py-2.5 px-3">Lĩnh Vực</th>
+                                <th class="py-2.5 px-3 text-right">Ngày Đăng Ký</th>
+                            </tr>
+                        </thead>
+                        <tbody id="list-old-members">
+                            <tr>
+                                <td colspan="5" class="py-6 text-center text-hud-muted">
+                                    <i class="fa-solid fa-spinner animate-spin text-hud-cyan text-base mr-2"></i>
+                                    Đang tải danh sách thành viên cũ...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-hud-border/40 bg-[#020408] py-6 font-mono text-xs text-hud-muted text-center">
+    <footer class="border-t border-hud-border/40 bg-[#020408] py-6 font-mono text-xs text-hud-muted text-center mt-12">
         <p>© 2026 SAOVN INTELLIGENCE NETWORK. INTERNAL SEARCH ENGINE.</p>
     </footer>
 
-    <!-- Firebase Script -->
+    <!-- Firebase SDK & Logic Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, query, where, getDocs, getCountFromServer } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, query, where, getDocs, orderBy, getCountFromServer } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Firebase Config
         const firebaseConfig = {
@@ -258,21 +358,104 @@
             'combat': 'Thể Lực / Võ Thuật / Trinh Sát',
             'business': 'Kinh Doanh / Tài Chính / Quản Lý',
             'media': 'Truyền Thông / Nghệ Thuật',
-            'other': 'Kỹ Năng Đặc Bắt Khác'
+            'other': 'Kỹ Năng Đặc Biệt Khác'
         };
 
-        // 1. Fetch Total Agents Count on Page Load
-        async function fetchTotalAgentsCount() {
+        // Format Date string
+        function formatDate(dateValue) {
+            if (!dateValue) return "N/A";
             try {
-                const coll = collection(db, "saovn_agents");
-                const snapshot = await getCountFromServer(coll);
-                document.getElementById('total-agents-count').innerText = snapshot.data().count;
-            } catch (err) {
-                console.error("Lỗi khi đếm tổng số thành viên: ", err);
-                document.getElementById('total-agents-count').innerText = "N/A";
+                const dateObj = new Date(dateValue);
+                if (isNaN(dateObj.getTime())) return "N/A";
+                return dateObj.toLocaleDateString('vi-VN', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            } catch (e) {
+                return "N/A";
             }
         }
-        fetchTotalAgentsCount();
+
+        // 1. Fetch Total Count & Load Offline Member Lists
+        async function loadInitialData() {
+            try {
+                // Fetch Total Count
+                const coll = collection(db, "saovn_agents");
+                const countSnapshot = await getCountFromServer(coll);
+                document.getElementById('total-agents-count').innerText = countSnapshot.data().count;
+
+                // Fetch All Members Ordered by Newest First
+                let qAll;
+                try {
+                    qAll = query(coll, orderBy("createdAt", "desc"));
+                } catch (e) {
+                    qAll = query(coll);
+                }
+
+                const querySnapshot = await getDocs(qAll);
+                
+                const allAgents = [];
+                querySnapshot.forEach((docSnap) => {
+                    allAgents.push({ id: docSnap.id, ...docSnap.data() });
+                });
+
+                // Fallback sort client-side if missing index
+                allAgents.sort((a, b) => {
+                    const timeA = new Date(a.createdAt || 0).getTime();
+                    const timeB = new Date(b.createdAt || 0).getTime();
+                    return timeB - timeA;
+                });
+
+                // Separate: Top 10 Newest vs Older
+                const newAgents = allAgents.slice(0, 10);
+                const oldAgents = allAgents.slice(10);
+
+                // Render New Members Table
+                const newTbody = document.getElementById('list-new-members');
+                if (newAgents.length === 0) {
+                    newTbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-hud-muted">Chưa có thành viên nào đăng ký.</td></tr>`;
+                } else {
+                    newTbody.innerHTML = newAgents.map((agent, index) => `
+                        <tr class="border-b border-hud-border/40 hover:bg-hud-cyan/5 transition-colors">
+                            <td class="py-3 px-3 font-bold text-hud-green">#${index + 1}</td>
+                            <td class="py-3 px-3 text-white font-semibold">
+                                ${agent.fullName || 'N/A'}
+                                <span class="ml-2 px-1.5 py-0.5 text-[9px] bg-hud-green/20 border border-hud-green/50 text-hud-green rounded">MỚI</span>
+                            </td>
+                            <td class="py-3 px-3 text-hud-cyan font-mono">${agent.phone || 'N/A'}</td>
+                            <td class="py-3 px-3 text-hud-amber">${specialtyMap[agent.specialty] || agent.specialty || 'N/A'}</td>
+                            <td class="py-3 px-3 text-right text-hud-muted">${formatDate(agent.createdAt)}</td>
+                        </tr>
+                    `).join('');
+                }
+
+                // Render Old Members Table
+                const oldTbody = document.getElementById('list-old-members');
+                if (oldAgents.length === 0) {
+                    oldTbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-hud-muted">Chưa có thêm thành viên cũ hơn.</td></tr>`;
+                } else {
+                    oldTbody.innerHTML = oldAgents.map((agent, index) => `
+                        <tr class="border-b border-hud-border/30 hover:bg-white/5 transition-colors text-hud-text/80">
+                            <td class="py-3 px-3 font-mono text-hud-muted">#${index + 11}</td>
+                            <td class="py-3 px-3 text-slate-200 font-medium">${agent.fullName || 'N/A'}</td>
+                            <td class="py-3 px-3 text-hud-cyan/80 font-mono">${agent.phone || 'N/A'}</td>
+                            <td class="py-3 px-3 text-hud-amber/80">${specialtyMap[agent.specialty] || agent.specialty || 'N/A'}</td>
+                            <td class="py-3 px-3 text-right text-hud-muted">${formatDate(agent.createdAt)}</td>
+                        </tr>
+                    `).join('');
+                }
+
+            } catch (err) {
+                console.error("Lỗi khởi tạo dữ liệu: ", err);
+                document.getElementById('total-agents-count').innerText = "ERR";
+                document.getElementById('list-new-members').innerHTML = `<tr><td colspan="5" class="py-4 text-center text-hud-red">Lỗi tải dữ liệu: ${err.message}</td></tr>`;
+                document.getElementById('list-old-members').innerHTML = `<tr><td colspan="5" class="py-4 text-center text-hud-red">Lỗi tải dữ liệu: ${err.message}</td></tr>`;
+            }
+        }
+
+        // Run on load
+        loadInitialData();
 
         // 2. Search Agent by Phone Number
         window.searchAgent = async function(event) {
@@ -313,14 +496,7 @@
                         document.getElementById('card-email').innerText = data.realContactEmail || "N/A";
                         document.getElementById('card-specialty').innerText = specialtyMap[data.specialty] || data.specialty || "N/A";
                         document.getElementById('card-ambition').innerText = data.ambition ? `"${data.ambition}"` : "Chưa cập nhật";
-                        
-                        // Format date
-                        if (data.createdAt) {
-                            const dateObj = new Date(data.createdAt);
-                            document.getElementById('card-date').innerText = dateObj.toLocaleDateString('vi-VN');
-                        } else {
-                            document.getElementById('card-date').innerText = "N/A";
-                        }
+                        document.getElementById('card-date').innerText = formatDate(data.createdAt);
                     });
 
                     agentCard.classList.remove('hidden');
