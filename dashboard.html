@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAOVN - Dashboard & Hồ Sơ Đặc Vụ</title>
+    <title>SAOVN - Dashboard & Cổng Thông Tin Đặc Vụ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Inter:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -40,10 +40,24 @@
         .hud-corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid #00f0ff; border-left: 2px solid #00f0ff; position: absolute; width: 10px; height: 10px; }
         .glow-text-cyan { text-shadow: 0 0 12px rgba(0, 240, 255, 0.6); }
         .glow-border-cyan { box-shadow: 0 0 15px rgba(0, 240, 255, 0.3); }
-        /* Tùy chỉnh icon lịch lịch chọn ngày */
+        
         input[type="date"]::-webkit-calendar-picker-indicator {
             filter: invert(0.8) sepia(100%) saturate(1000%) hue-rotate(140deg);
             cursor: pointer;
+        }
+
+        .tab-btn.active {
+            background-color: rgba(0, 240, 255, 0.15);
+            border-color: #00f0ff;
+            color: #00f0ff;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+
+        .tab-btn-adv.active {
+            background-color: rgba(255, 183, 0, 0.15);
+            border-color: #ffb700;
+            color: #ffb700;
+            box-shadow: 0 0 10px rgba(255, 183, 0, 0.3);
         }
     </style>
 </head>
@@ -58,7 +72,7 @@
                 </div>
                 <div>
                     <span class="font-orbitron font-bold text-lg text-white">SAO<span class="text-hud-cyan glow-text-cyan">VN</span> PORTAL</span>
-                    <span class="text-[9px] font-mono text-hud-muted block uppercase">HỆ THỐNG QUẢN LÝ TIẾN TRÌNH & HỒ SƠ THÀNH VIÊN</span>
+                    <span class="text-[9px] font-mono text-hud-muted block uppercase">TRUNG TÂM QUẢN LÝ THÔNG TIN & NHIỆM VỤ ĐẶC VỤ</span>
                 </div>
             </div>
 
@@ -74,9 +88,9 @@
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow space-y-8">
+    <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow space-y-10">
         
-        <!-- Top Profile Overview -->
+        <!-- Profile Banner Header -->
         <div class="hud-box p-6 border-l-4 border-l-hud-cyan flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div class="hud-corner-tr"></div>
             <div class="hud-corner-bl"></div>
@@ -86,204 +100,354 @@
                     <i class="fa-solid fa-id-card"></i>
                 </div>
                 <div>
-                    <span class="font-mono text-xs text-hud-cyan uppercase">// HỒ SƠ THÀNH VIÊN SAOVN</span>
+                    <span class="font-mono text-xs text-hud-cyan uppercase">// HỒ SƠ ĐẶC VỤ TỔ CHỨC SAOVN</span>
                     <h1 id="user-name-display" class="font-orbitron font-bold text-2xl text-white mt-0.5">Đang tải...</h1>
                     <p class="font-mono text-xs text-hud-muted mt-1">
                         SĐT: <span id="user-phone-display" class="text-white">---</span> | 
-                        Nghề nghiệp: <span id="user-job-display" class="text-hud-amber uppercase">---</span>
+                        Trạng thái hồ sơ: <span id="basic-status" class="text-hud-amber">Sơ bộ (50%)</span>
                     </p>
                 </div>
             </div>
 
             <div class="flex items-center gap-4 font-mono text-xs">
                 <div class="px-4 py-2 bg-hud-bg border border-hud-border text-center">
-                    <span class="text-hud-muted text-[10px] block">CẤP BẬC HẠN MỨC</span>
-                    <span class="text-hud-cyan font-bold font-orbitron">TẬP SỰ // LEVEL 1</span>
+                    <span class="text-hud-muted text-[10px] block">TIẾN TRÌNH HỒ SƠ</span>
+                    <span id="profile-percent-header" class="text-hud-cyan font-bold font-orbitron text-base">0%</span>
                 </div>
                 <div class="px-4 py-2 bg-hud-bg border border-hud-border text-center">
-                    <span class="text-hud-muted text-[10px] block">TRẠNG THÁI</span>
-                    <span class="text-hud-green font-bold">HOẠT ĐỘNG</span>
+                    <span class="text-hud-muted text-[10px] block">MÃ ĐẶC VỤ</span>
+                    <span id="agent-code-display" class="text-hud-green font-bold uppercase">SAO-000</span>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            <!-- PHẦN 1: FORM CẬP NHẬT THÔNG TIN CÁ NHÂN (CHI TIẾT) -->
-            <div class="lg:col-span-7 hud-box p-6 relative">
-                <div class="hud-corner-tr"></div>
-                <div class="hud-corner-bl"></div>
-
-                <div class="flex items-center justify-between border-b border-hud-border pb-4 mb-6">
-                    <h2 class="font-orbitron font-bold text-lg text-white flex items-center gap-2">
-                        <i class="fa-solid fa-user-pen text-hud-cyan"></i>
-                        <span>CẬP NHẬT THÔNG TIN CÁ NHÂN</span>
-                    </h2>
-                    <span class="font-mono text-[10px] text-hud-muted uppercase">// ĐỒNG BỘ FIRESTORE</span>
-                </div>
-
-                <!-- Thông báo trạng thái lưu -->
-                <div id="update-msg" class="hidden mb-6 p-3 font-mono text-xs text-center border rounded"></div>
-
-                <form id="profile-form" onsubmit="handleUpdateProfile(event)" class="space-y-5">
-                    
-                    <!-- Hàng 1: Họ tên & Ngày sinh -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div>
-                            <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Họ và Tên (*)</label>
-                            <input type="text" id="agent-fullname" required placeholder="Nguyễn Văn A" 
-                                class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
-                        </div>
-
-                        <div>
-                            <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Ngày Tháng Năm Sinh (*)</label>
-                            <input type="date" id="agent-dob" required
-                                class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
-                        </div>
-                    </div>
-
-                    <!-- Hàng 2: SĐT & Email -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div>
-                            <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Số Điện Thoại (*)</label>
-                            <input type="tel" id="agent-phone" required pattern="[0-9]{9,11}" placeholder="0901234567" 
-                                class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
-                        </div>
-
-                        <div>
-                            <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Email Liên Hệ (*)</label>
-                            <input type="email" id="agent-email" required placeholder="thanhvien@gmail.com" 
-                                class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
-                        </div>
-                    </div>
-
-                    <!-- Hàng 3: Trình độ học vấn & Nghề nghiệp -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div>
-                            <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Trình Độ Học Vấn</label>
-                            <select id="agent-education" class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
-                                <option value="" class="bg-hud-bg text-hud-muted">-- Chọn trình độ --</option>
-                                <option value="THPT" class="bg-hud-bg">Trung Học Phổ Thông</option>
-                                <option value="Trung Cấp / Cao Đẳng" class="bg-hud-bg">Trung Cấp / Cao Đẳng</option>
-                                <option value="Đại Học" class="bg-hud-bg">Đại Học</option>
-                                <option value="Sau Đại Học (Thạc sĩ/Tiến sĩ)" class="bg-hud-bg">Sau Đại Học</option>
-                                <option value="Khác" class="bg-hud-bg">Khác</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Nghề Nghiệp Hiện Tại</label>
-                            <input type="text" id="agent-job" placeholder="VD: Lái xe, Lập trình viên, Kỹ sư..." 
-                                class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
-                        </div>
-                    </div>
-
-                    <!-- Hàng 4: Quê quán -->
-                    <div>
-                        <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Quê Quán</label>
-                        <input type="text" id="agent-hometown" placeholder="VD: Nam Định, Hà Nội, TP. Hồ Chí Minh..." 
-                            class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
-                    </div>
-
-                    <!-- Hàng 5: Địa chỉ hiện tại -->
-                    <div>
-                        <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Địa Chỉ Hiện Tại (Thường Trú / Tạm Trú)</label>
-                        <input type="text" id="agent-address" placeholder="VD: 123 Đường ABC, Phường X, Quận Y, TP.HCM..." 
-                            class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
-                    </div>
-
-                    <!-- Button Submit -->
-                    <button type="submit" id="save-btn" class="w-full py-3.5 bg-hud-cyan hover:bg-hud-cyan/80 text-black font-orbitron font-bold text-xs uppercase tracking-widest transition-all glow-border-cyan flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-floppy-disk"></i>
-                        <span>LƯU CẬP NHẬT HỒ SƠ</span>
-                    </button>
-                </form>
+        <!-- PHẦN 1: BẢNG ĐIỀN THÔNG TIN HỒ SƠ (TAB CƠ BẢN & CHUYÊN SÂU) -->
+        <section class="space-y-4">
+            <div class="flex flex-wrap gap-3 font-mono text-xs">
+                <button onclick="switchFormTab('basic')" id="tab-btn-basic" class="tab-btn active px-6 py-3 border border-hud-border bg-hud-bg text-hud-muted font-bold uppercase transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-user"></i>
+                    <span>1. Hồ Sơ Cơ Bản (Đạt 50%)</span>
+                </button>
+                <button onclick="switchFormTab('advanced')" id="tab-btn-advanced" class="tab-btn px-6 py-3 border border-hud-border bg-hud-bg text-hud-muted font-bold uppercase transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-user-shield text-hud-amber"></i>
+                    <span>2. Hồ Sơ Đặc Vụ Chuyên Sâu (Đạt 100%)</span>
+                </button>
             </div>
 
-            <!-- PHẦN 2: TIẾN TRÌNH NHIỆM VỤ & RÈN LUYỆN -->
-            <div class="lg:col-span-5 space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 
-                <!-- Progress Card -->
-                <div class="hud-box p-6 space-y-4">
-                    <div class="hud-corner-tr"></div>
-                    <h2 class="font-orbitron font-bold text-lg text-white border-b border-hud-border pb-3 flex justify-between items-center">
-                        <span>TIẾN TRÌNH THÀNH VIÊN</span>
-                        <i class="fa-solid fa-chart-line text-hud-cyan"></i>
-                    </h2>
+                <!-- FORM CONTAINER -->
+                <div class="lg:col-span-8">
                     
-                    <div>
-                        <div class="flex justify-between font-mono text-xs mb-1">
-                            <span class="text-hud-muted">Hồ Sơ Cá Nhân:</span>
-                            <span id="profile-progress-text" class="text-hud-cyan font-bold">0%</span>
+                    <!-- TAB 1: FORM HỒ SƠ CƠ BẢN -->
+                    <div id="form-tab-basic" class="hud-box p-6 relative">
+                        <div class="hud-corner-tr"></div>
+                        <div class="hud-corner-bl"></div>
+
+                        <div class="flex items-center justify-between border-b border-hud-border pb-4 mb-6">
+                            <h2 class="font-orbitron font-bold text-lg text-white flex items-center gap-2">
+                                <i class="fa-solid fa-id-badge text-hud-cyan"></i>
+                                <span>THÔNG TIN CÁ NHÂN SƠ BỘ</span>
+                            </h2>
+                            <span class="font-mono text-[10px] text-hud-cyan uppercase">// HOÀN THÀNH = 50% HỒ SƠ</span>
                         </div>
-                        <div class="w-full bg-hud-bg border border-hud-border h-2.5 p-0.5">
-                            <div id="profile-progress-bar" class="bg-hud-cyan h-full w-[0%] transition-all duration-500 glow-border-cyan"></div>
-                        </div>
+
+                        <form id="basic-form" onsubmit="handleSaveBasic(event)" class="space-y-5">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                <div>
+                                    <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Họ và Tên (*)</label>
+                                    <input type="text" id="agent-fullname" required placeholder="Nguyễn Văn A" 
+                                        class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
+                                </div>
+                                <div>
+                                    <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Ngày Tháng Năm Sinh (*)</label>
+                                    <input type="date" id="agent-dob" required 
+                                        class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                <div>
+                                    <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Số Điện Thoại (*)</label>
+                                    <input type="tel" id="agent-phone" required pattern="[0-9]{9,11}" placeholder="0901234567" 
+                                        class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
+                                </div>
+                                <div>
+                                    <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Email Liên Hệ (*)</label>
+                                    <input type="email" id="agent-email" required placeholder="example@gmail.com" 
+                                        class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                <div>
+                                    <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Quê Quán</label>
+                                    <input type="text" id="agent-hometown" placeholder="VD: Nam Định, Hà Nội..." 
+                                        class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
+                                </div>
+                                <div>
+                                    <label class="block font-mono text-xs text-hud-cyan mb-1.5 uppercase">Địa Chỉ Hiện Tại</label>
+                                    <input type="text" id="agent-address" placeholder="VD: Q. Tân Bình, TP.HCM..." 
+                                        class="w-full bg-hud-bg border border-hud-border focus:border-hud-cyan focus:ring-1 focus:ring-hud-cyan outline-none p-3 text-white font-mono text-sm">
+                                </div>
+                            </div>
+
+                            <button type="submit" id="save-basic-btn" class="w-full py-3.5 bg-hud-cyan hover:bg-hud-cyan/80 text-black font-orbitron font-bold text-xs uppercase tracking-widest transition-all glow-border-cyan flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>LƯU HỒ SƠ SƠ BỘ (ĐẠT 50%)</span>
+                            </button>
+                        </form>
                     </div>
 
-                    <div>
-                        <div class="flex justify-between font-mono text-xs mb-1">
-                            <span class="text-hud-muted">Kỹ Năng & Lĩnh Vực:</span>
-                            <span class="text-hud-amber font-bold">50%</span>
+                    <!-- TAB 2: FORM HỒ SƠ ĐẶC VỤ CHUYÊN SÂU -->
+                    <div id="form-tab-advanced" class="hud-box p-6 relative hidden">
+                        <div class="hud-corner-tr"></div>
+                        <div class="hud-corner-bl"></div>
+
+                        <div class="flex items-center justify-between border-b border-hud-border pb-4 mb-6">
+                            <h2 class="font-orbitron font-bold text-lg text-hud-amber flex items-center gap-2">
+                                <i class="fa-solid fa-dna text-hud-amber"></i>
+                                <span>HỒ SƠ ĐẶC VỤ & NHẬN DẠNG CHUYÊN SÂU</span>
+                            </h2>
+                            <span class="font-mono text-[10px] text-hud-amber uppercase">// HOÀN THÀNH = 100% HỒ SƠ</span>
                         </div>
-                        <div class="w-full bg-hud-bg border border-hud-border h-2.5 p-0.5">
-                            <div class="bg-hud-amber h-full w-[50%]"></div>
-                        </div>
+
+                        <form id="advanced-form" onsubmit="handleSaveAdvanced(event)" class="space-y-6">
+                            
+                            <!-- Nhóm 1: Chỉ số sinh trắc học & Nhận dạng -->
+                            <div class="space-y-4">
+                                <h3 class="font-orbitron text-xs text-hud-amber uppercase tracking-wider flex items-center gap-2 border-b border-hud-border/40 pb-2">
+                                    <i class="fa-solid fa-ruler-vertical"></i> 1. Chỉ Số Sinh Trắc & Nhận Dạng Thể Chất
+                                </h3>
+                                
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                    <div>
+                                        <label class="block font-mono text-[11px] text-hud-muted mb-1 uppercase">Chiều Cao (cm) (*)</label>
+                                        <input type="number" id="agent-height" required placeholder="170" 
+                                            class="w-full bg-hud-bg border border-hud-border focus:border-hud-amber outline-none p-2.5 text-white font-mono text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block font-mono text-[11px] text-hud-muted mb-1 uppercase">Cân Nặng (kg) (*)</label>
+                                        <input type="number" id="agent-weight" required placeholder="65" 
+                                            class="w-full bg-hud-bg border border-hud-border focus:border-hud-amber outline-none p-2.5 text-white font-mono text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block font-mono text-[11px] text-hud-muted mb-1 uppercase">Màu Da (*)</label>
+                                        <input type="text" id="agent-skin" required placeholder="Sáng / Ngăm / Vàng" 
+                                            class="w-full bg-hud-bg border border-hud-border focus:border-hud-amber outline-none p-2.5 text-white font-mono text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block font-mono text-[11px] text-hud-muted mb-1 uppercase">Nhóm Máu</label>
+                                        <select id="agent-blood" class="w-full bg-hud-bg border border-hud-border focus:border-hud-amber outline-none p-2.5 text-white font-mono text-sm">
+                                            <option value="A">Nhóm A</option>
+                                            <option value="B">Nhóm B</option>
+                                            <option value="AB">Nhóm AB</option>
+                                            <option value="O" selected>Nhóm O</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block font-mono text-[11px] text-hud-muted mb-1 uppercase">Dấu Hiệu Nhận Dạng Đặc Biệt</label>
+                                    <input type="text" id="agent-ident-marks" placeholder="VD: Vết sẹo lông mày phải, nốt ruồi cằm, hình xăm vai..." 
+                                        class="w-full bg-hud-bg border border-hud-border focus:border-hud-amber outline-none p-2.5 text-white font-mono text-sm">
+                                </div>
+                            </div>
+
+                            <!-- Nhóm 2: Nghề nghiệp, Trình độ & Chuyên môn -->
+                            <div class="space-y-4 pt-2">
+                                <h3 class="font-orbitron text-xs text-hud-amber uppercase tracking-wider flex items-center gap-2 border-b border-hud-border/40 pb-2">
+                                    <i class="fa-solid fa-graduation-cap"></i> 2. Trình Độ & Lĩnh Vực Hoạt Động
+                                </h3>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block font-mono text-[11px] text-hud-muted mb-1 uppercase">Trình Độ Học Vấn (*)</label>
+                                        <select id="agent-education" required class="w-full bg-hud-bg border border-hud-border focus:border-hud-amber outline-none p-2.5 text-white font-mono text-sm">
+                                            <option value="">-- Chọn trình độ --</option>
+                                            <option value="THPT">Trung Học Phổ Thông</option>
+                                            <option value="Trung Cấp / Cao Đẳng">Trung Cấp / Cao Đẳng</option>
+                                            <option value="Đại Học">Đại Học</option>
+                                            <option value="Sau Đại Học">Sau Đại Học (Thạc sĩ/Tiến sĩ)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block font-mono text-[11px] text-hud-muted mb-1 uppercase">Nghề Nghiệp Hiện Tại (*)</label>
+                                        <input type="text" id="agent-job" required placeholder="VD: Kỹ sư, Lập trình viên, Lái xe..." 
+                                            class="w-full bg-hud-bg border border-hud-border focus:border-hud-amber outline-none p-2.5 text-white font-mono text-sm">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block font-mono text-[11px] text-hud-muted mb-1 uppercase">Mã / Số CCCD Xác Thực</label>
+                                        <input type="text" id="agent-idcard" placeholder="Số Căn cước công dân" 
+                                            class="w-full bg-hud-bg border border-hud-border focus:border-hud-amber outline-none p-2.5 text-white font-mono text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block font-mono text-[11px] text-hud-muted mb-1 uppercase">Sở Trường Đặc Vụ Chính</label>
+                                        <select id="agent-specialty" class="w-full bg-hud-bg border border-hud-border focus:border-hud-amber outline-none p-2.5 text-white font-mono text-sm">
+                                            <option value="tech">Công Nghệ / IT / An Ninh Mạng</option>
+                                            <option value="combat">Trinh Sát / Thể Lực / Hậu Cần</option>
+                                            <option value="business">Điều Hành / Quản Lý / Tài Chính</option>
+                                            <option value="media">Truyền Thông / Mạng Xã Hội</option>
+                                            <option value="other">Kỹ Năng Khác</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block font-mono text-[11px] text-hud-muted mb-1 uppercase">Mô Tả Kỹ Năng / Bằng Cấp / Kinh Nghiệm Nổi Bật</label>
+                                    <textarea id="agent-skills-desc" rows="3" placeholder="Mô tả kỹ năng chuyên sâu, các loại bằng cấp, khả năng ngoại ngữ, hoặc chứng chỉ sở hữu..." 
+                                        class="w-full bg-hud-bg border border-hud-border focus:border-hud-amber outline-none p-2.5 text-white font-mono text-sm"></textarea>
+                                </div>
+                            </div>
+
+                            <button type="submit" id="save-advanced-btn" class="w-full py-3.5 bg-hud-amber hover:bg-hud-amber/80 text-black font-orbitron font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-hud-amber/20 flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                <span>HOÀN TẤT HỒ SƠ CHUYÊN SÂU (ĐẠT 100%)</span>
+                            </button>
+                        </form>
                     </div>
 
-                    <div>
-                        <div class="flex justify-between font-mono text-xs mb-1">
-                            <span class="text-hud-muted">Nhiệm Vụ Thực Địa:</span>
-                            <span class="text-hud-green font-bold">15%</span>
-                        </div>
-                        <div class="w-full bg-hud-bg border border-hud-border h-2.5 p-0.5">
-                            <div class="bg-hud-green h-full w-[15%]"></div>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Active Mission List -->
-                <div class="hud-box p-6">
-                    <div class="hud-corner-tr"></div>
-                    <div class="hud-corner-bl"></div>
+                <!-- RIGHT SIDEBAR: TIẾN TRÌNH HỒ SƠ -->
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="hud-box p-6 space-y-5">
+                        <div class="hud-corner-tr"></div>
+                        <h2 class="font-orbitron font-bold text-base text-white border-b border-hud-border pb-3 flex justify-between items-center">
+                            <span>MỨC HOÀN THIỆN</span>
+                            <i class="fa-solid fa-chart-pie text-hud-cyan"></i>
+                        </h2>
 
-                    <h2 class="font-orbitron font-bold text-lg text-white border-b border-hud-border pb-3 mb-4 flex justify-between items-center">
-                        <span>NHIỆM VỤ ĐƯỢC GIAO</span>
-                        <i class="fa-solid fa-list-check text-hud-amber"></i>
-                    </h2>
-
-                    <div class="space-y-3 font-mono text-xs">
-                        <div class="p-3 bg-hud-bg/80 border border-hud-cyan/40 flex items-center justify-between">
-                            <div>
-                                <span class="px-2 py-0.5 bg-hud-cyan/20 border border-hud-cyan text-hud-cyan text-[10px]">ƯU TIÊN</span>
-                                <h4 class="font-bold text-white mt-1">NV-01: Cập nhật hoàn chỉnh 8 thông tin hồ sơ cá nhân</h4>
+                        <!-- Progress Bar -->
+                        <div>
+                            <div class="flex justify-between font-mono text-xs mb-1.5">
+                                <span class="text-hud-muted">Tiến Trình Đạt Được:</span>
+                                <span id="side-percent-text" class="text-hud-cyan font-bold">0%</span>
                             </div>
-                            <span id="nv1-status" class="text-hud-amber">ĐANG LÀM</span>
+                            <div class="w-full bg-hud-bg border border-hud-border h-3 p-0.5">
+                                <div id="side-percent-bar" class="bg-hud-cyan h-full w-[0%] transition-all duration-500 glow-border-cyan"></div>
+                            </div>
                         </div>
 
-                        <div class="p-3 bg-hud-bg/80 border border-hud-border flex items-center justify-between opacity-80">
-                            <div>
-                                <span class="px-2 py-0.5 bg-hud-amber/20 border border-hud-amber text-hud-amber text-[10px]">CHỜ KÍCH HOẠT</span>
-                                <h4 class="font-bold text-white mt-1">NV-02: Tiếp nhận phổ biến định hướng SAOVN</h4>
+                        <!-- Checklist -->
+                        <div class="space-y-3 font-mono text-xs border-t border-hud-border/40 pt-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-hud-muted">1. Hồ sơ Cơ bản (50%):</span>
+                                <span id="step1-badge" class="text-hud-red"><i class="fa-solid fa-xmark"></i> Chưa xong</span>
                             </div>
-                            <span class="text-hud-muted">0%</span>
+                            <div class="flex items-center justify-between">
+                                <span class="text-hud-muted">2. Hồ sơ Chuyên sâu (50%):</span>
+                                <span id="step2-badge" class="text-hud-red"><i class="fa-solid fa-xmark"></i> Chưa xong</span>
+                            </div>
                         </div>
 
-                        <div class="p-3 bg-hud-bg/80 border border-hud-border flex items-center justify-between opacity-80">
-                            <div>
-                                <span class="px-2 py-0.5 bg-hud-amber/20 border border-hud-amber text-hud-amber text-[10px]">CHỜ KÍCH HOẠT</span>
-                                <h4 class="font-bold text-white mt-1">NV-03: Kiểm tra sát hạch chuyên môn ban đầu</h4>
-                            </div>
-                            <span class="text-hud-muted">0%</span>
+                        <div id="status-msg-box" class="p-3 bg-hud-bg border border-hud-border font-mono text-xs text-hud-muted leading-relaxed">
+                            // Vui lòng nhập đầy đủ Hồ sơ cơ bản để mở khóa 50% tiến trình đầu tiên.
                         </div>
                     </div>
                 </div>
 
             </div>
+        </section>
 
-        </div>
+        <!-- PHẦN 2: TÁCH RIÊNG NHIỆM VỤ VÀ HƯỚNG DẪN CHI TIẾT (NẰM Ở DƯỚI) -->
+        <section class="hud-box p-6 relative space-y-6">
+            <div class="hud-corner-tr"></div>
+            <div class="hud-corner-bl"></div>
+
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-hud-border pb-4 gap-2">
+                <div>
+                    <h2 class="font-orbitron font-bold text-xl text-white flex items-center gap-3">
+                        <i class="fa-solid fa-list-check text-hud-cyan"></i>
+                        <span>DANH SÁCH NHIỆM VỤ & HƯỚNG DẪN THỰC THI</span>
+                    </h2>
+                    <p class="font-mono text-xs text-hud-muted mt-1">// CÁC HẠNG MỤC NHIỆM VỤ DÀNH CHO THÀNH VIÊN SAOVN</p>
+                </div>
+                <span class="px-3 py-1 bg-hud-cyan/10 border border-hud-cyan text-hud-cyan font-mono text-xs uppercase">
+                    Hệ Thống Nhiệm Vụ
+                </span>
+            </div>
+
+            <!-- List of Missions -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 font-mono text-xs">
+                
+                <!-- Mission 1 -->
+                <div class="p-5 bg-hud-bg border border-hud-cyan flex flex-col justify-between space-y-4">
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="px-2 py-0.5 bg-hud-cyan/20 border border-hud-cyan text-hud-cyan text-[10px]">NV BẮT BUỘC</span>
+                            <span id="m1-percent" class="text-hud-amber font-bold">0%</span>
+                        </div>
+                        <h3 class="font-bold text-sm text-white font-orbitron">NV-01: Hoàn Thiện Hồ Sơ Cá Nhân</h3>
+                        <p class="text-hud-muted text-[11px] leading-relaxed">Cập nhật Hồ sơ Cơ bản (50%) và Hồ sơ Đặc vụ Chuyên sâu (100%).</p>
+                    </div>
+                    <button onclick="openMissionGuide(1)" class="w-full py-2.5 border border-hud-cyan text-hud-cyan hover:bg-hud-cyan hover:text-black font-bold uppercase transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-circle-info"></i> Xem Hướng Dẫn
+                    </button>
+                </div>
+
+                <!-- Mission 2 -->
+                <div class="p-5 bg-hud-bg border border-hud-border flex flex-col justify-between space-y-4">
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="px-2 py-0.5 bg-hud-amber/20 border border-hud-amber text-hud-amber text-[10px]">NV QUY CHẾ</span>
+                            <span class="text-hud-muted">0%</span>
+                        </div>
+                        <h3 class="font-bold text-sm text-white font-orbitron">NV-02: Tiếp Nhận Quy Tắc Hoạt Động</h3>
+                        <p class="text-hud-muted text-[11px] leading-relaxed">Tìm hiểu điều lệ, quy chế bảo mật và tác phong làm việc SAOVN.</p>
+                    </div>
+                    <button onclick="openMissionGuide(2)" class="w-full py-2.5 border border-hud-border text-hud-muted hover:border-hud-cyan hover:text-hud-cyan font-bold uppercase transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-circle-info"></i> Xem Hướng Dẫn
+                    </button>
+                </div>
+
+                <!-- Mission 3 -->
+                <div class="p-5 bg-hud-bg border border-hud-border flex flex-col justify-between space-y-4">
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="px-2 py-0.5 bg-hud-green/20 border border-hud-green text-hud-green text-[10px]">NV CHUYÊN MÔN</span>
+                            <span class="text-hud-muted">0%</span>
+                        </div>
+                        <h3 class="font-bold text-sm text-white font-orbitron">NV-03: Khảo Sát Năng Lực Ban Đầu</h3>
+                        <p class="text-hud-muted text-[11px] leading-relaxed">Tham gia đánh giá chuyên môn để xếp ban/đội hoạt động phù hợp.</p>
+                    </div>
+                    <button onclick="openMissionGuide(3)" class="w-full py-2.5 border border-hud-border text-hud-muted hover:border-hud-cyan hover:text-hud-cyan font-bold uppercase transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-circle-info"></i> Xem Hướng Dẫn
+                    </button>
+                </div>
+
+            </div>
+        </section>
 
     </main>
+
+    <!-- MODAL POPUP HƯỚNG DẪN CHI TIẾT NHIỆM VỤ -->
+    <div id="mission-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="max-w-lg w-full hud-box p-6 relative border-hud-cyan">
+            <div class="hud-corner-tr"></div>
+            <div class="hud-corner-bl"></div>
+
+            <div class="flex justify-between items-center border-b border-hud-border pb-3 mb-4">
+                <h3 id="modal-title" class="font-orbitron font-bold text-white text-base">HƯỚNG DẪN NHIỆM VỤ</h3>
+                <button onclick="closeMissionGuide()" class="text-hud-muted hover:text-hud-red text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="modal-body" class="font-mono text-xs text-slate-300 space-y-3 leading-relaxed">
+                <!-- Content loaded dynamically -->
+            </div>
+
+            <div class="mt-6 border-t border-hud-border pt-4 text-right">
+                <button onclick="closeMissionGuide()" class="px-5 py-2 bg-hud-cyan text-black font-orbitron font-bold text-xs uppercase hover:bg-hud-cyan/80">
+                    ĐÃ HIỂU / ĐÓNG
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="border-t border-hud-border/40 py-4 font-mono text-xs text-hud-muted text-center">
@@ -311,28 +475,88 @@
 
         let currentUserUID = null;
 
-        // Tính % hoàn thiện hồ sơ dựa trên 8 trường
-        function calculateProfileProgress(data) {
-            const fields = ['fullName', 'dob', 'phone', 'realContactEmail', 'education', 'job', 'hometown', 'address'];
-            let filled = 0;
-            fields.forEach(f => {
-                if (data && data[f] && data[f].toString().trim() !== '') filled++;
-            });
-            const percent = Math.round((filled / fields.length) * 100);
+        // 1. Chuyển Tab Form Hồ Sơ (Cơ bản <-> Chuyên sâu)
+        window.switchFormTab = function(tabName) {
+            document.getElementById('tab-btn-basic').classList.remove('active');
+            document.getElementById('tab-btn-advanced').classList.remove('active', 'tab-btn-adv');
             
-            document.getElementById('profile-progress-text').innerText = percent + "%";
-            document.getElementById('profile-progress-bar').style.width = percent + "%";
-            
-            if (percent === 100) {
-                document.getElementById('nv1-status').innerText = "HOÀN THÀNH";
-                document.getElementById('nv1-status').className = "text-hud-green font-bold";
+            document.getElementById('form-tab-basic').classList.add('hidden');
+            document.getElementById('form-tab-advanced').classList.add('hidden');
+
+            if (tabName === 'basic') {
+                document.getElementById('tab-btn-basic').classList.add('active');
+                document.getElementById('form-tab-basic').classList.remove('hidden');
+            } else {
+                document.getElementById('tab-btn-advanced').classList.add('tab-btn-adv', 'active');
+                document.getElementById('form-tab-advanced').classList.remove('hidden');
+            }
+        };
+
+        // 2. Tính toán và Cập nhật UI Tiến Trình
+        function updateProgressUI(data) {
+            let basicCompleted = false;
+            let advancedCompleted = false;
+
+            // Kiểm tra Hồ sơ Cơ bản (Họ tên, Ngày sinh, SĐT, Email)
+            if (data && data.fullName && data.dob && data.phone && (data.realContactEmail || data.email)) {
+                basicCompleted = true;
+            }
+
+            // Kiểm tra Hồ sơ Chuyên sâu (Chiều cao, Cân nặng, Màu da, Học vấn, Nghề nghiệp)
+            if (data && data.height && data.weight && data.skinColor && data.education && data.job) {
+                advancedCompleted = true;
+            }
+
+            let totalPercent = 0;
+            if (basicCompleted) totalPercent += 50;
+            if (advancedCompleted) totalPercent += 50;
+
+            // Update Text & Bars
+            document.getElementById('profile-percent-header').innerText = totalPercent + "%";
+            document.getElementById('side-percent-text').innerText = totalPercent + "%";
+            document.getElementById('side-percent-bar').style.width = totalPercent + "%";
+            document.getElementById('m1-percent').innerText = totalPercent + "%";
+
+            // Update Badges
+            const step1Badge = document.getElementById('step1-badge');
+            if (basicCompleted) {
+                step1Badge.className = "text-hud-green font-bold";
+                step1Badge.innerHTML = `<i class="fa-solid fa-check"></i> Đạt 50%`;
+                document.getElementById('basic-status').innerText = "Cơ bản (50%)";
+                document.getElementById('basic-status').className = "text-hud-cyan font-bold";
+            } else {
+                step1Badge.className = "text-hud-red";
+                step1Badge.innerHTML = `<i class="fa-solid fa-xmark"></i> Chưa xong`;
+            }
+
+            const step2Badge = document.getElementById('step2-badge');
+            if (advancedCompleted) {
+                step2Badge.className = "text-hud-green font-bold";
+                step2Badge.innerHTML = `<i class="fa-solid fa-check"></i> Đạt 50%`;
+            } else {
+                step2Badge.className = "text-hud-red";
+                step2Badge.innerHTML = `<i class="fa-solid fa-xmark"></i> Chưa xong`;
+            }
+
+            // Status Message
+            const msgBox = document.getElementById('status-msg-box');
+            if (totalPercent === 100) {
+                document.getElementById('basic-status').innerText = "Đặc vụ Hoàn chỉnh (100%)";
+                document.getElementById('basic-status').className = "text-hud-green font-bold";
+                msgBox.className = "p-3 bg-hud-green/10 border border-hud-green text-hud-green font-mono text-xs leading-relaxed";
+                msgBox.innerText = "// HOÀN HẢO! Bạn đã đạt 100% Hồ sơ Đặc vụ. Đã sẵn sàng nhận phân công nhiệm vụ thực địa.";
+            } else if (totalPercent === 50) {
+                msgBox.className = "p-3 bg-hud-amber/10 border border-hud-amber text-hud-amber font-mono text-xs leading-relaxed";
+                msgBox.innerText = "// ĐÃ ĐẠT 50%: Hãy chuyển sang tab 'Hồ Sơ Đặc Vụ Chuyên Sâu' để hoàn tất sinh trắc học và cán mốc 100%.";
             }
         }
 
-        // 1. Kiểm tra trạng thái đăng nhập & Tải dữ liệu cũ từ Firebase Firestore
+        // 3. Nạp dữ liệu từ Firestore
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUserUID = user.uid;
+                document.getElementById('agent-code-display').innerText = "SAO-" + user.uid.substring(0, 5).toUpperCase();
+
                 try {
                     const docRef = doc(db, "saovn_agents", user.uid);
                     const docSnap = await getDoc(docRef);
@@ -340,81 +564,158 @@
                     if (docSnap.exists()) {
                         const data = docSnap.data();
 
-                        // Điền thông tin lên Header Banner
-                        document.getElementById('user-name-display').innerText = data.fullName || "Chưa cập nhật";
+                        // Display Header
+                        document.getElementById('user-name-display').innerText = data.fullName || "Thành viên SAOVN";
                         document.getElementById('user-phone-display').innerText = data.phone || "N/A";
-                        document.getElementById('user-job-display').innerText = data.job || "Chưa cập nhật";
 
-                        // Load dữ liệu cũ vào Form
+                        // Form 1: Basic
                         document.getElementById('agent-fullname').value = data.fullName || '';
                         document.getElementById('agent-dob').value = data.dob || '';
                         document.getElementById('agent-phone').value = data.phone || '';
                         document.getElementById('agent-email').value = data.realContactEmail || data.email || '';
-                        document.getElementById('agent-education').value = data.education || '';
-                        document.getElementById('agent-job').value = data.job || '';
                         document.getElementById('agent-hometown').value = data.hometown || '';
                         document.getElementById('agent-address').value = data.address || '';
 
-                        calculateProfileProgress(data);
+                        // Form 2: Advanced Biometrics & Skills
+                        document.getElementById('agent-height').value = data.height || '';
+                        document.getElementById('agent-weight').value = data.weight || '';
+                        document.getElementById('agent-skin').value = data.skinColor || '';
+                        document.getElementById('agent-blood').value = data.bloodType || 'O';
+                        document.getElementById('agent-ident-marks').value = data.identMarks || '';
+                        document.getElementById('agent-education').value = data.education || '';
+                        document.getElementById('agent-job').value = data.job || '';
+                        document.getElementById('agent-idcard').value = data.idCard || '';
+                        document.getElementById('agent-specialty').value = data.specialty || 'tech';
+                        document.getElementById('agent-skills-desc').value = data.skillsDesc || '';
+
+                        updateProgressUI(data);
                     }
                 } catch (err) {
-                    console.error("Lỗi tải hồ sơ cá nhân:", err);
+                    console.error("Lỗi nạp dữ liệu Firebase:", err);
                 }
             } else {
                 window.location.href = "login.html";
             }
         });
 
-        // 2. Xử lý Ghi / Cập nhật dữ liệu trực tiếp lên Firebase
-        window.handleUpdateProfile = async function(event) {
+        // 4. Lưu Form Hồ Sơ Cơ Bản (50%)
+        window.handleSaveBasic = async function(event) {
             event.preventDefault();
             if (!currentUserUID) return;
 
-            const saveBtn = document.getElementById('save-btn');
-            const msgDiv = document.getElementById('update-msg');
+            const btn = document.getElementById('save-basic-btn');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>ĐANG LƯU HỒ SƠ...</span>`;
 
-            msgDiv.className = "hidden mb-6 p-3 font-mono text-xs text-center border rounded";
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>ĐANG ĐỒNG BỘ TỚI FIREBASE...</span>`;
-
-            const updatedData = {
+            const basicData = {
                 fullName: document.getElementById('agent-fullname').value.trim(),
                 dob: document.getElementById('agent-dob').value,
                 phone: document.getElementById('agent-phone').value.trim(),
                 realContactEmail: document.getElementById('agent-email').value.trim(),
-                education: document.getElementById('agent-education').value,
-                job: document.getElementById('agent-job').value.trim(),
                 hometown: document.getElementById('agent-hometown').value.trim(),
                 address: document.getElementById('agent-address').value.trim(),
                 updatedAt: new Date().toISOString()
             };
 
             try {
-                const agentRef = doc(db, "saovn_agents", currentUserUID);
-                // Dùng setDoc với merge: true cho phép vừa ghi mới vừa chỉnh sửa về sau
-                await setDoc(agentRef, updatedData, { merge: true });
+                await setDoc(doc(db, "saovn_agents", currentUserUID), basicData, { merge: true });
+                
+                document.getElementById('user-name-display').innerText = basicData.fullName;
+                document.getElementById('user-phone-display').innerText = basicData.phone;
 
-                // Cập nhật lại UI hiển thị lập tức
-                document.getElementById('user-name-display').innerText = updatedData.fullName;
-                document.getElementById('user-phone-display').innerText = updatedData.phone;
-                document.getElementById('user-job-display').innerText = updatedData.job || "Chưa cập nhật";
+                const docSnap = await getDoc(doc(db, "saovn_agents", currentUserUID));
+                updateProgressUI(docSnap.data());
 
-                calculateProfileProgress(updatedData);
-
-                msgDiv.className = "mb-6 p-3 font-mono text-xs text-center border rounded bg-hud-green/10 border-hud-green text-hud-green block";
-                msgDiv.innerHTML = `<i class="fa-solid fa-check-circle mr-1"></i> Hồ sơ đã được ghi thành công lên hệ thống! Bạn có thể chỉnh sửa lại bất kỳ lúc nào.`;
-
+                alert("Đã lưu Hồ sơ Cơ bản (Đạt 50% Tiến trình)!");
+                switchFormTab('advanced'); // Tự chuyển sang tab Hồ sơ Chuyên sâu
             } catch (err) {
-                console.error("Lỗi cập nhật Firestore:", err);
-                msgDiv.className = "mb-6 p-3 font-mono text-xs text-center border rounded bg-hud-red/10 border-hud-red text-hud-red block";
-                msgDiv.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> Không thể lưu dữ liệu: ${err.message}`;
+                alert("Lỗi lưu dữ liệu: " + err.message);
             } finally {
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> <span>LƯU CẬP NHẬT HỒ SƠ</span>`;
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> <span>LƯU HỒ SƠ SƠ BỘ (ĐẠT 50%)</span>`;
             }
         };
 
-        // 3. Đăng xuất
+        // 5. Lưu Form Hồ Sơ Đặc Vụ Chuyên Sâu (100%)
+        window.handleSaveAdvanced = async function(event) {
+            event.preventDefault();
+            if (!currentUserUID) return;
+
+            const btn = document.getElementById('save-advanced-btn');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>ĐANG CẬP NHẬT SINH TRÁC HỌC...</span>`;
+
+            const advancedData = {
+                height: document.getElementById('agent-height').value,
+                weight: document.getElementById('agent-weight').value,
+                skinColor: document.getElementById('agent-skin').value.trim(),
+                bloodType: document.getElementById('agent-blood').value,
+                identMarks: document.getElementById('agent-ident-marks').value.trim(),
+                education: document.getElementById('agent-education').value,
+                job: document.getElementById('agent-job').value.trim(),
+                idCard: document.getElementById('agent-idcard').value.trim(),
+                specialty: document.getElementById('agent-specialty').value,
+                skillsDesc: document.getElementById('agent-skills-desc').value.trim(),
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                await setDoc(doc(db, "saovn_agents", currentUserUID), advancedData, { merge: true });
+
+                const docSnap = await getDoc(doc(db, "saovn_agents", currentUserUID));
+                updateProgressUI(docSnap.data());
+
+                alert("Chúc mừng! Bạn đã hoàn tất Hồ sơ Đặc vụ Chuyên sâu (Đạt 100% Tiến trình)!");
+            } catch (err) {
+                alert("Lỗi lưu dữ liệu: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-shield-halved"></i> <span>HOÀN TẤT HỒ SƠ CHUYÊN SÂU (ĐẠT 100%)</span>`;
+            }
+        };
+
+        // 6. Modal Hướng dẫn Nhiệm vụ
+        window.openMissionGuide = function(id) {
+            const modal = document.getElementById('mission-modal');
+            const title = document.getElementById('modal-title');
+            const body = document.getElementById('modal-body');
+
+            if (id === 1) {
+                title.innerText = "HƯỚNG DẪN: CẬP NHẬT HỒ SƠ (NV-01)";
+                body.innerHTML = `
+                    <p class="text-hud-cyan font-bold">• BƯỚC 1: Hoàn thành Hồ sơ Cơ bản (50%)</p>
+                    <p class="pl-3">Điền các thông tin: Họ tên, Ngày sinh, Số điện thoại và Email. Bấm "Lưu hồ sơ sơ bộ".</p>
+                    <p class="text-hud-amber font-bold mt-2">• BƯỚC 2: Cập nhật Sinh trắc học & Chuyên sâu (100%)</p>
+                    <p class="pl-3">Chuyển sang Tab "Hồ Sơ Đặc Vụ Chuyên Sâu", điền Chiều cao, Cân nặng, Màu da, Học vấn và Nghề nghiệp. Bấm "Hoàn tất hồ sơ chuyên sâu".</p>
+                    <p class="text-hud-green font-bold mt-2">• XÁC NHẬN:</p>
+                    <p class="pl-3">Hệ thống Firestore sẽ tự động chuyển trạng thái hồ sơ của bạn sang "Đặc vụ Hoàn chỉnh (100%)".</p>
+                `;
+            } else if (id === 2) {
+                title.innerText = "HƯỚNG DẪN: QUY TẮC HOẠT ĐỘNG (NV-02)";
+                body.innerHTML = `
+                    <p class="text-hud-cyan font-bold">• MỤC TIÊU:</p>
+                    <p class="pl-3">Nắm vững quy chế phối hợp, nguyên tắc bảo mật thông tin nội bộ tổ chức SAOVN.</p>
+                    <p class="text-hud-amber font-bold mt-2">• THỰC HIỆN:</p>
+                    <p class="pl-3">1. Đọc kỹ văn bản hướng dẫn được gửi tới Email đăng ký.<br>2. Nhấn xác nhận cam kết quy chế trên hệ thống Portal.</p>
+                `;
+            } else if (id === 3) {
+                title.innerText = "HƯỚNG DẪN: SÁT HẠCH NĂNG LỰC (NV-03)";
+                body.innerHTML = `
+                    <p class="text-hud-cyan font-bold">• MỤC TIÊU:</p>
+                    <p class="pl-3">Xác định nhóm thế mạnh (Công nghệ, Thực địa, Hậu cần, Truyền thông) để xếp phân ban.</p>
+                    <p class="text-hud-amber font-bold mt-2">• THỰC HIỆN:</p>
+                    <p class="pl-3">Nhiệm vụ này sẽ tự động kích hoạt ngay khi hồ sơ đạt mức hoàn thiện 100%.</p>
+                `;
+            }
+
+            modal.classList.remove('hidden');
+        };
+
+        window.closeMissionGuide = function() {
+            document.getElementById('mission-modal').classList.add('hidden');
+        };
+
+        // 7. Đăng xuất
         window.handleLogout = function() {
             signOut(auth).then(() => {
                 window.location.href = "login.html";
